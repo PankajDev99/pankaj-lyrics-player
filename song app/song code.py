@@ -41,6 +41,7 @@ songs_database = {
         "artist": "Sarckey Kohli",
         # 👑 क्योंकि फाइल गिटहब पर 'song app' फोल्डर के अंदर है, इसलिए इसे ऐसे लिखो:
         "audio_file_path": "song app/dhundle_song.mp3",
+        "video_file_path": "song app/anime_walk.mp4",
         "lyrics_timed": [
             {"time": 0.0, "text": "Dhundle hue hain manzar mere.."},
             {"time": 3.0, "text": "Tu raahein inhehin dikhana..."},
@@ -137,13 +138,15 @@ elif st.session_state.screen == "player":
     video_col, lyrics_col = st.columns([1, 1])
     
     with video_col:
-        st.markdown("""
-            <div class="video-dummy">
-                <span style="font-size: 50px;">🎬</span>
-                <b style="color: #ff4b4b; font-size: 18px; margin-top:5px; letter-spacing: 1px;">STUDIO VIDEO PLAYER</b>
-                <p style="font-size: 13px; color:#666; margin:0;">Video stream active</p>
-            </div>
-        """, unsafe_allow_html=True)
+        # 👑 डेटाबेस से वीडियो का रास्ता पढ़ना
+        current_video_path = song_data["video_file_path"]
+        
+        # 🚀 यह असली वीडियो प्लेयर है जो वीडियो को अपने आप (Autoplay) और बार-बार (Loop) चलाएगा
+        import os
+        if os.path.exists(current_video_path):
+            st.video(current_video_path, autoplay=True, loop=True, muted=True)
+        else:
+            st.error(f"वीडियो फाइल मिसिंग है: {current_video_path}")
     # 👑 पुराने ग्लोबल audio_path को हटाकर अब हम सीधे चुने हुए गाने का पाथ यहाँ पढ़ेंगे
     current_song_path = song_data["audio_file_path"]
     
