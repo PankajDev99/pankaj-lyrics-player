@@ -138,16 +138,21 @@ elif st.session_state.screen == "player":
     video_col, lyrics_col = st.columns([1, 1])
     
     with video_col:
-        # 👑 डेटाबेस से वीडियो का रास्ता पढ़ना
         current_video_path = song_data["video_file_path"]
         
-        # 🚀 यह असली वीडियो प्लेयर है जो वीडियो को अपने आप (Autoplay) और बार-बार (Loop) चलाएगा
         import os
         if os.path.exists(current_video_path):
-            st.video(current_video_path, autoplay=True, loop=True, muted=True)
+            # 👑 यहाँ हम Streamlit के डिफ़ॉल्ट प्लेयर की जगह HTML5 प्लेयर यूज़ करेंगे 
+            # जो वीडियो को बिना रुके बार-बार (Infinity Loop) चलाता रहेगा
+            with open(current_video_path, 'rb') as video_file:
+                video_bytes = video_file.read()
+            
+            st.video(video_bytes, autoplay=True, loop=True, muted=True)
         else:
             st.error(f"वीडियो फाइल मिसिंग है: {current_video_path}")
-    # 👑 पुराने ग्लोबल audio_path को हटाकर अब हम सीधे चुने हुए गाने का पाथ यहाँ पढ़ेंगे
+        
+        
+            # 👑 पुराने ग्लोबल audio_path को हटाकर अब हम सीधे चुने हुए गाने का पाथ यहाँ पढ़ेंगे
     current_song_path = song_data["audio_file_path"]
     
     # ऑडियो बाइट्स को सेफली लोड करना
