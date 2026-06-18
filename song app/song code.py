@@ -39,9 +39,8 @@ songs_database = {
     "dhundle manzar": {
         "display_name": "Dhundle Manzar",
         "artist": "Sarckey Kohli",
-        # 👑 यहाँ 'audio_path =' की जगह '"audio_file_path":' आएगा और आखिर में कॉमा (,) लगेगा
-        "audio_file_path": r"C:\Users\KK\VS code python\apps\song app\dhundle_song.mp3",
-
+        # 👑 क्योंकि फाइल गिटहब पर 'song app' फोल्डर के अंदर है, इसलिए इसे ऐसे लिखो:
+        "audio_file_path": "song app/dhundle_song.mp3",
         "lyrics_timed": [
             {"time": 0.0, "text": "Dhundle hue hain manzar mere.."},
             {"time": 3.0, "text": "Tu raahein inhehin dikhana..."},
