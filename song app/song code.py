@@ -56,7 +56,7 @@ songs_database = {
     },
 
     #yahan agle song ko likne ke liye uper , lagana hoga
-    "Rose Garden": {
+    "rose garden": {
         "display_name": "Rose Garden",
         "artist": "Lata Mangeshkar",
         "audio_file_path": "song app/Rose_Garden.mp3",
