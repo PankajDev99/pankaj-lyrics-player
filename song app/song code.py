@@ -56,8 +56,51 @@ songs_database = {
     },
 
     #yahan agle song ko likne ke liye uper , lagana hoga
+    "Rose Garden": {
+        "display_name": "Rose Garden",
+        "artist": "Lata Mangeshkar",
+        "audio_file_path": "song app/Rose_Garden.mp3",
+        "video_file_path": "song app/Rose_Garden_Video.mp4",
+        "lyrics_timed": [
+            {"time": 0.0, "text": "Phoolan aale garden leju tanne main..."},
+            {"time": 3.5, "text": "Dil jaan sab kuch deju tanne main..."},
+            {"time": 7.0, "text": "Dil aale badala mein pyar bhara se..."},
+            {"time": 10.0, "text": "Aaja pyar aali boonda ke mah.."},
+            {"time": 10.5, "text": "Bheju tanne main..."},
+            {"time": 12.0, "text": "Tere birthday pe karenge.."},
+            {"time": 14.0, "text": "Plan tour bahar ka..."},
+            {"time": 16.0, "text": "Dekh liye tu bhi badda.."},
+            {"time": 16.7, "text": "Kalja se yaar ka.."},
+            {"time": 18.0, "text": "A to z sari ae demand poori hovegi..."},
+            {"time": 21.0, "text": "Udate tyme dekhda na 100 ka 1000 ka.."},
+            {"time": 24.0, "text": "Pyar ka bhi tohra ghana khas bawali.."},
+            {"time": 27.0, "text": "Koi ayi ni tere siwa raas bawli..."},
+            {"time": 29.0, "text": "Bajrangi ka pujari ib puje bhole ne...."},
+            {"time": 32.0, "text": "Tanne paan tahi rakhe upwas bawli..."},
+            {"time": 35.0, "text": "Phoolan aale garden leju tanne main...."},
+            {"time": 38.0, "text": "Dil jaan sab kuch deju tanne main.."},
+            {"time": 41.0, "text": "Dil aale badala mein pyar bhara se.."},
+            {"time": 43.0, "text": "Aaja pyar aali boonda ke mah...."},
+            {"time": 44.0, "text": "Bheju tanne main...."},
+            {"time": 46.0, "text": ".........."},
+            {"time": 57.0, "text": "Batue se muh jissi pote ki se bahu..."},
+            {"time": 61.0, "text": "Dekh dekh chaa chade dadi kare nyuh.."},
+            {"time": 64.0, "text": "Ladiye na kade meri baat maniye...."},
+            {"time": 66.0, "text": "Meri maa bhi tane rakhegi re betiya ki jyun.."},
+            {"time": 69.0, "text": "Nyun ki re nyun jamma laage tu pari..."},
+            {"time": 72.0, "text": "Sar te re pair jamaa rass ki bhari.."},
+            {"time": 75.0, "text": "Ndee ndee kundu bass naam ka hi ndee.."},
+            {"time": 77.0, "text": "Naa re byah ke tanne delhi te yo..."},
+            {"time": 78.0, "text": "Laijega surrey..."},
+            {"time": 80.5, "text": "Phoolan aale garden leju tanne main.."},
+            {"time": 83.0, "text": "Dil jaan sab kuch deju tanne main.."},
+            {"time": 86.0, "text": "Dil aale badala mein pyar bhara se..."},
+            {"time": 89.0, "text": "Aaja pyar aali boonda ke mah..."},
+            {"time": 90.0, "text": "Bheju tanne main ...."},
+            {"time": 90.7, "text": ".........."},
 
-
+        ]
+    }
 }
 
 if "screen" not in st.session_state:
@@ -73,12 +116,12 @@ if st.session_state.screen == "main":
     left_col, mid_col, right_col = st.columns([1, 2, 1])
     with mid_col:
         st.markdown('<div class="song-box">', unsafe_allow_html=True)
-        st.subheader("🎵 Tracklist Available:")
+        st.subheader("🎵 Available list:")
         for key, val in songs_database.items():
             st.markdown(f"🔥 **Type this:** `{key}` <br><small style='color:#ff4b4b;'>Artist: {val['artist']}</small>", unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
         
-        search_query = st.text_input("Enter this (गाने का नाम लिखें):", "").strip().lower()
+        search_query = st.text_input("(गाने का नाम लिखें):", "").strip().lower()
         
         if st.button("🚀 FIND & PLAY"):
             if search_query in songs_database:
@@ -149,7 +192,7 @@ elif st.session_state.screen == "player":
             
             st.video(video_bytes, autoplay=True, loop=True, muted=True)
         else:
-            st.error(f"वीडियो फाइल मिसिंग है: {current_video_path}")
+            st.error(f"वीडियो फाइल मिसिंग है: {current_video_path}") 
         
         
             # 👑 पुराने ग्लोबल audio_path को हटाकर अब हम सीधे चुने हुए गाने का पाथ यहाँ पढ़ेंगे
