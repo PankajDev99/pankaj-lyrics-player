@@ -103,9 +103,9 @@ songs_database = {
     },
 
 
-    "Careless":{
-        "display_name": "Careless",
-                "artist": "Mani Sekhon",
+    "KITAB":{
+        "display_name": "KITAB",
+                "artist": "Mr Dutt, Vipin Foji",
                 "audio_file_path": "song app/KITAB.mp3",
                 "video_file_path": "song app/KITAB_VIDEO.mp4",
                 "lyrics_timed": [
