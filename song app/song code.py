@@ -51,7 +51,7 @@ songs_database = {
             {"time": 17.0, "text": "Kahani tu apni yun kar bayaan..."},
             {"time": 20.0, "text": "Mere dil pe asi chahi..."},
             {"time": 23.0, "text": "Tu hi tu muje mein samaye..."},
-            {"time": 26.0, "text": "Ban gyi mere kudayi soniye..."}
+            {"time": 26.0, "text": "Ban gyi mere kudayi baliya..."}
         ]
     },
 
@@ -100,6 +100,56 @@ songs_database = {
             {"time": 90.7, "text": ".........."},
 
         ]
+    },
+
+
+    "Careless":{
+        "display_name": "Careless",
+                "artist": "Mani Sekhon",
+                "audio_file_path": "song app/KITAB.mp3",
+                "video_file_path": "song app/KITAB_VIDEO.mp4",
+                "lyrics_timed": [
+                    {"time": 0.0, "text": "......."},
+                    {"time": 16.0, "text": " Tane Main Likhu Rani Dil Ki "},
+                    {"time": 20.1, "text": "Ya Tanne Mumtaj Likhunga "},
+                    {"time": 24.0, "text": "Je Likhne Mein Baith Gya Tanne "},
+                    {"time": 27.5, "text": "To Pakka Main Kitaab Likhunga "},
+                    {"time": 30.5, "text": " To Pakka Main Kitaab Likhunga"},
+                    {"time": 34.0, "text": "Re Hothan Ne Gulaab Likh Dyu "},
+                    {"time": 37.5, "text": " Re Akhya Ne Sharaab Likhunga"},
+                    {"time": 41.0, "text": "Je Likhne Mein Baith Gya Tanne "},
+                    {"time": 44.0, "text": "To Pakka Main Kitaab Likhunga "},
+                    {"time": 48.0, "text": "tanne main likhu rani dill ki.. "},
+                    {"time": 52.0, "text": "...... "},
+                    {"time": 70.0, "text": "Chunni Mein Jo Moti Jadre Usne Chhori Taara Likhu "},
+                    {"time": 77.0, "text": "Chaand Feeka Lagge Se, Yo Roop Kitna Pyaara Likhu "},
+                    {"time": 84.0, "text": "Ram Ka Ishara Likhu, Dekhya Na Nazaara Likhu "},
+                    {"time": 90.5, "text": "Baat Chhoti Lage Meri, Kaat Ke Dubaara Likhu.. "},
+                    {"time": 97.0, "text": "Baat Chhoti Lage Meri, Kaat Ke Dubaara Likhu "},
+                    {"time": 104.0, "text": "Re Baatan Ne Alaap Likhunga"},
+                    {"time": 108.0, "text": "Jo Dikh Ja Tu Khwab Likhunga "},
+                    {"time": 112.0, "text": "Je Likhne Mein Baith Gya Tanne "},
+                    {"time": 115.0, "text": "To Pakka Main Kitaab Likhunga "},
+                    {"time": 118.0, "text": "Ho Puche Na Tu Mere Te Ya Aashiq Ka Haal "},
+                    {"time": 121.0, "text": "Resham Te Zyada Hai Sunehre Tere Baal "},
+                    {"time": 125.0, "text": "Ho Pariyan Ke Desh Te Tu Aayi Visa Daal Ke "},
+                    {"time": 129.0, "text": "Red Moon Jaisi E Tu Lage Se Kamaal"},
+                    {"time": 132.0, "text": "Can’t Live Without You, You Baby Mind "},
+                    {"time": 135.5, "text": "If You Touch Me So I’m Feeling Fine "},
+                    {"time": 139.0, "text": "Likhu Tere Baare Saari Duniya Ke Bol Laaun"},
+                    {"time": 143.0, "text": "Likhu Tere Baare Saari Duniya Ne Bhool Jaaun"},
+                    {"time": 146.5, "text": "Likhu Tere Baare Phir Kuch Aur Na Main Likh Paaun"},
+                    {"time": 149.5, "text": "Tod Ke Kalam Phir Faansi Pe Main Jhool Jaaun"},
+                    {"time": 154.0, "text": "Tanne Main Meri Radha Likh Dyu"},
+                    {"time": 157.5, "text": "Maine Main Ghanshyam Likhunga"},
+                    {"time": 161.5, "text": "Je Likhne Mein Baith Gya Tanne"},
+                    {"time": 164.5, "text": "To Pakka Main Kitaab Likhunga"},
+                    {"time": 168.0, "text": "Tanne Main Likhu Rani Dil Ki"},
+                    {"time": 171.0, "text": "...end..."},
+                    
+
+                ]
+
     }
 }
 
