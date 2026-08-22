@@ -220,7 +220,7 @@ elif st.session_state.screen == "confirm":
                 st.session_state.current_song = None
                 st.rerun()
 
-# --- 3. असली प्लेयर स्क्रीन ---
+# --- 3. प्लेयर स्क्रीन ---
 elif st.session_state.screen == "player":
     song_data = songs_database[st.session_state.current_song]
     
@@ -237,25 +237,40 @@ elif st.session_state.screen == "player":
 
     video_col, lyrics_col = st.columns([1, 1])
     
+    # --- नया फिक्स किया हुआ कोड ---
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    
+    v_name = os.path.basename(song_data["video_file_path"])
+    a_name = os.path.basename(song_data["audio_file_path"])
+    
+    abs_video_path = os.path.join(BASE_DIR, v_name)
+    abs_audio_path = os.path.join(BASE_DIR, a_name)
+
+    # 1. वीडियो प्लेयर
     with video_col:
-        # 👑 os.path.abspath यह सुनिश्चित करेगा कि फाइल हमेशा .py स्क्रिप्ट के पास से ही उठे
-        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-        file_name = os.path.basename(song_data["video_file_path"])
-        full_video_path = os.path.join(BASE_DIR, file_name)
-        
-        if os.path.exists(full_video_path):
-            with open(full_video_path, 'rb') as v_file:
+        if os.path.exists(abs_video_path):
+            with open(abs_video_path, 'rb') as v_file:
                 video_bytes = v_file.read()
                 video_b64 = base64.b64encode(video_bytes).decode()
                 
             st.components.v1.html(f"""
                 <video width="100%" height="280" autoplay loop muted controls style="border-radius:12px; object-fit: cover;">
                     <source src="data:video/mp4;base64,{video_b64}" type="video/mp4">
-                    आपका ब्राउज़र यह वीडियो सपोर्ट नहीं करता।
                 </video>
             """, height=290)
         else:
-            st.error(f"❌ वीडियो फाइल मिसिंग है: {file_name}")
+            st.error(f"❌ वीडियो फाइल नहीं मिली: {v_name}")
+
+    # 2. ऑडियो प्लेयर
+    audio_base64 = ""
+    if os.path.exists(abs_audio_path):
+        with open(abs_audio_path, "rb") as f:
+            audio_bytes = f.read()
+            audio_base64 = base64.b64encode(audio_bytes).decode()
+    else:
+        st.error(f"❌ ऑडियो फाइल नहीं मिली: {a_name}")
+
+    # (इसके नीचे आपका पुराना `with lyrics_col:` वाला लिरिक्स का कोड जैसा है वैसा ही रहेगा)
         
         
             # 👑 पुराने ग्लोबल audio_path को हटाकर अब हम सीधे चुने हुए गाने का पाथ यहाँ पढ़ेंगे
