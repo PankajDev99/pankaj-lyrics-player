@@ -1,0 +1,349 @@
+import streamlit as st
+import os
+import json
+import base64
+
+# पेज सेटिंग्स
+st.set_page_config(page_title="PANKAJ LYRICS - OFFICIAL PLAYER", layout="wide")
+
+# 👑 स्मार्ट पाथ फाइंडर: यह फाइल को अपने आप खोज लेगा (चाहे फाइल कहीं भी रखी हो)
+def find_file(file_path):
+    if os.path.exists(file_path):
+        return file_path
+    filename = os.path.basename(file_path)
+    if os.path.exists(filename):
+        return filename
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    path_near_script = os.path.join(script_dir, filename)
+    if os.path.exists(path_near_script):
+        return path_near_script
+    path_in_subfolder = os.path.join(script_dir, "song app", filename)
+    if os.path.exists(path_in_subfolder):
+        return path_in_subfolder
+    return file_path
+
+st.markdown("""
+    <style>
+    .main .block-container { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+    h1 { 
+        color: #ff4b4b; font-family: 'Poppins', sans-serif; font-weight: 800; 
+        font-size: 28px; margin: 0px; text-shadow: 0px 0px 10px rgba(255, 75, 75, 0.4);
+        text-align: center;
+    }
+    .stButton>button {
+        background-color: #ff4b4b; color: white; border-radius: 6px; 
+        font-weight: bold; width: 100%; border: none; padding: 6px 12px;
+    }
+    .stButton>button:hover { background-color: #ff3333; }
+    
+    .song-box, .confirm-box {
+        background: linear-gradient(135deg, #1f1f2e 0%, #111122 100%);
+        padding: 25px; border-radius: 12px; border-left: 6px solid #ff4b4b;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+        text-align: center;
+    }
+    .video-dummy {
+        background: radial-gradient(circle, #1a1c23 0%, #0f1015 100%);
+        border: 2px dashed #ff4b4b; border-radius: 12px;
+        height: 380px; display: flex; flex-direction: column; justify-content: center;
+        align-items: center; color: #aaa; text-align: center;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# 👑 गानों का डेटाबेस (यहाँ हर गाने का ओरिजिनल youtube_link जोड़ा गया है)
+songs_database = {
+    "dhundle manzar": {
+        "display_name": "Dhundle Manzar",
+        "artist": "Sarckey Kohli",
+        "youtube_link": "https://www.youtube.com/watch?v=YOUR_YOUTUBE_LINK_HERE",
+        "audio_file_path": "song app/dhundle_song.mp3",
+        "video_file_path": "song app/anime_walk.mp4",
+        "lyrics_timed": [
+            {"time": 0.0, "text": "Dhundle hue hain manzar mere.."},
+            {"time": 3.0, "text": "Tu raahein inhehin dikhana..."},
+            {"time": 6.0, "text": "Jo zero se vaasta hai mera..."},
+            {"time": 8.0, "text": "Tu rehmat ka hai fasana..."},
+            {"time": 12.0, "text": "Kaagzon pe jaise, bikhri hai siyahi..."},
+            {"time": 17.0, "text": "Kahani tu apni yun kar bayaan..."},
+            {"time": 20.0, "text": "Mere dil pe asi chahi..."},
+            {"time": 23.0, "text": "Tu hi tu muje mein samaye..."},
+            {"time": 26.0, "text": "Ban gyi mere kudayi baliya..."}
+        ]
+    },
+
+    "rose garden": {
+        "display_name": "Rose Garden",
+        "artist": "Lata Mangeshkar",
+        "youtube_link": "https://www.youtube.com/watch?v=YOUR_YOUTUBE_LINK_HERE",
+        "audio_file_path": "song app/Rose_Garden.mp3",
+        "video_file_path": "song app/Rose_Garden_Video.mp4",
+        "lyrics_timed": [
+            {"time": 0.0, "text": "Phoolan aale garden leju tanne main..."},
+            {"time": 3.5, "text": "Dil jaan sab kuch deju tanne main..."},
+            {"time": 7.0, "text": "Dil aale badala mein pyar bhara se..."},
+            {"time": 10.0, "text": "Aaja pyar aali boonda ke mah.."},
+            {"time": 10.5, "text": "Bheju tanne main..."},
+            {"time": 12.0, "text": "Tere birthday pe karenge.."},
+            {"time": 14.0, "text": "Plan tour bahar ka..."},
+            {"time": 16.0, "text": "Dekh liye tu bhi badda.."},
+            {"time": 16.7, "text": "Kalja se yaar ka.."},
+            {"time": 18.0, "text": "A to z sari ae demand poori hovegi..."},
+            {"time": 21.0, "text": "Udate tyme dekhda na 100 ka 1000 ka.."},
+            {"time": 24.0, "text": "Pyar ka bhi tohra ghana khas bawali.."},
+            {"time": 27.0, "text": "Koi ayi ni tere siwa raas bawli..."},
+            {"time": 29.0, "text": "Bajrangi ka pujari ib puje bhole ne...."},
+            {"time": 32.0, "text": "Tanne paan tahi rakhe upwas bawli..."},
+            {"time": 35.0, "text": "Phoolan aale garden leju tanne main...."},
+            {"time": 38.0, "text": "Dil jaan sab kuch deju tanne main.."},
+            {"time": 41.0, "text": "Dil aale badala mein pyar bhara se.."},
+            {"time": 43.0, "text": "Aaja pyar aali boonda ke mah...."},
+            {"time": 44.0, "text": "Bheju tanne main...."},
+            {"time": 46.0, "text": ".........."},
+            {"time": 57.0, "text": "Batue se muh jissi pote ki se bahu..."},
+            {"time": 61.0, "text": "Dekh dekh chaa chade dadi kare nyuh.."},
+            {"time": 64.0, "text": "Ladiye na kade meri baat maniye...."},
+            {"time": 66.0, "text": "Meri maa bhi tane rakhegi re betiya ki jyun.."},
+            {"time": 69.0, "text": "Nyun ki re nyun jamma laage tu pari..."},
+            {"time": 72.0, "text": "Sar te re pair jamaa rass ki bhari.."},
+            {"time": 75.0, "text": "Ndee ndee kundu bass naam ka hi ndee.."},
+            {"time": 77.0, "text": "Naa re byah ke tanne delhi te yo..."},
+            {"time": 78.0, "text": "Laijega surrey..."},
+            {"time": 80.5, "text": "Phoolan aale garden leju tanne main.."},
+            {"time": 83.0, "text": "Dil jaan sab kuch deju tanne main.."},
+            {"time": 86.0, "text": "Dil aale badala mein pyar bhara se..."},
+            {"time": 89.0, "text": "Aaja pyar aali boonda ke mah..."},
+            {"time": 90.0, "text": "Bheju tanne main ...."},
+            {"time": 90.7, "text": ".........."}
+        ]
+    },
+
+    "KITAB": {
+        "display_name": "KITAB",
+        "artist": "Mr Dutt, Vipin Foji",
+        "youtube_link": "https://www.youtube.com/watch?v=YOUR_YOUTUBE_LINK_HERE",
+        "audio_file_path": "song app/KITAB.mp3",
+        "video_file_path": "song app/KITAB_VIDEO.mp4",
+        "lyrics_timed": [
+            {"time": 0.0, "text": "......."},
+            {"time": 16.0, "text": " Tane Main Likhu Rani Dil Ki "},
+            {"time": 20.1, "text": "Ya Tanne Mumtaj Likhunga "},
+            {"time": 24.0, "text": "Je Likhne Mein Baith Gya Tanne "},
+            {"time": 27.5, "text": "To Pakka Main Kitaab Likhunga "},
+            {"time": 30.5, "text": " To Pakka Main Kitaab Likhunga"},
+            {"time": 34.0, "text": "Re Hothan Ne Gulaab Likh Dyu "},
+            {"time": 37.5, "text": " Re Akhya Ne Sharaab Likhunga"},
+            {"time": 41.0, "text": "Je Likhne Mein Baith Gya Tanne "},
+            {"time": 44.0, "text": "To Pakka Main Kitaab Likhunga "},
+            {"time": 48.0, "text": "tanne main likhu rani dill ki.. "},
+            {"time": 52.0, "text": "...... "},
+            {"time": 70.0, "text": "Chunni Mein Jo Moti Jadre Usne Chhori Taara Likhu "},
+            {"time": 77.0, "text": "Chaand Feeka Lagge Se, Yo Roop Kitna Pyaara Likhu "},
+            {"time": 84.0, "text": "Ram Ka Ishara Likhu, Dekhya Na Nazaara Likhu "},
+            {"time": 90.5, "text": "Baat Chhoti Lage Meri, Kaat Ke Dubaara Likhu.. "},
+            {"time": 97.0, "text": "Baat Chhoti Lage Meri, Kaat Ke Dubaara Likhu "},
+            {"time": 104.0, "text": "Re Baatan Ne Alaap Likhunga"},
+            {"time": 108.0, "text": "Jo Dikh Ja Tu Khwab Likhunga "},
+            {"time": 112.0, "text": "Je Likhne Mein Baith Gya Tanne "},
+            {"time": 115.0, "text": "To Pakka Main Kitaab Likhunga "},
+            {"time": 118.0, "text": "Ho Puche Na Tu Mere Te Ya Aashiq Ka Haal "},
+            {"time": 121.0, "text": "Resham Te Zyada Hai Sunehre Tere Baal "},
+            {"time": 125.0, "text": "Ho Pariyan Ke Desh Te Tu Aayi Visa Daal Ke "},
+            {"time": 129.0, "text": "Red Moon Jaisi E Tu Lage Se Kamaal"},
+            {"time": 132.0, "text": "Can’t Live Without You, You Baby Mind "},
+            {"time": 135.5, "text": "If You Touch Me So I’m Feeling Fine "},
+            {"time": 139.0, "text": "Likhu Tere Baare Saari Duniya Ke Bol Laaun"},
+            {"time": 143.0, "text": "Likhu Tere Baare Saari Duniya Ne Bhool Jaaun"},
+            {"time": 146.5, "text": "Likhu Tere Baare Phir Kuch Aur Na Main Likh Paaun"},
+            {"time": 149.5, "text": "Tod Ke Kalam Phir Faansi Pe Main Jhool Jaaun"},
+            {"time": 154.0, "text": "Tanne Main Meri Radha Likh Dyu"},
+            {"time": 157.5, "text": "Maine Main Ghanshyam Likhunga"},
+            {"time": 161.5, "text": "Je Likhne Mein Baith Gya Tanne"},
+            {"time": 164.5, "text": "To Pakka Main Kitaab Likhunga"},
+            {"time": 168.0, "text": "Tanne Main Likhu Rani Dil Ki"},
+            {"time": 171.0, "text": "...end..."}
+        ]
+    }
+}
+
+if "screen" not in st.session_state:
+    st.session_state.screen = "main"
+if "current_song" not in st.session_state:
+    st.session_state.current_song = None
+
+# --- 1. मुख्य सर्च स्क्रीन ---
+if st.session_state.screen == "main":
+    st.markdown("<h1>👑 PANKAJ LYRICS- OFFICIAL PLAYER</h1>", unsafe_allow_html=True)
+    st.write("---")
+    
+    left_col, mid_col, right_col = st.columns([1, 2, 1])
+    with mid_col:
+        st.markdown('<div class="song-box">', unsafe_allow_html=True)
+        st.subheader("🎵 Available list:")
+        for key, val in songs_database.items():
+            st.markdown(f"🔥 **Type this:** `{key}` <br><small style='color:#ff4b4b;'>Artist: {val['artist']}</small>", unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+        search_query = st.text_input("(गाने का नाम लिखें):", "").strip().lower()
+        
+        if st.button("🚀 FIND & PLAY"):
+            if search_query in songs_database:
+                st.session_state.current_song = search_query
+                st.session_state.screen = "confirm"
+                st.rerun()
+            elif search_query == "":
+                st.warning("कृपया पहले बॉक्स में गाने का नाम टाइप करें!")
+            else:
+                st.error("❌ यह गाना अभी उपलब्ध नहीं है!")
+
+# --- 2. बीच की कन्फर्मेशन स्क्रीन ---
+elif st.session_state.screen == "confirm":
+    st.markdown("<h1>🔍 SONG FOUND!</h1>", unsafe_allow_html=True)
+    st.write("---")
+    
+    left_col, mid_col, right_col = st.columns([1, 2, 1])
+    with mid_col:
+        song_info = songs_database[st.session_state.current_song]
+        st.markdown(f"""
+            <div class="confirm-box">
+                <span style="font-size: 50px;">🎵</span>
+                <h3 style="color:#ff4b4b; margin:10px 0;">{song_info['display_name']}</h3>
+                <p style="color:#aaa;">Artist: {song_info['artist']}</p>
+                <p style="font-size:14px; color:#666;">क्या आप इस गाने को प्ले करना चाहते हैं?</p>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        st.write("<div style='margin-top:15px;'></div>", unsafe_allow_html=True)
+        
+        btn_col1, btn_col2 = st.columns(2)
+        with btn_col1:
+            if st.button("▶️ YES, PLAY NOW"):
+                st.session_state.screen = "player"
+                st.rerun()
+        with btn_col2:
+            if st.button("⬅️ NO, GO BACK"):
+                st.session_state.screen = "main"
+                st.session_state.current_song = None
+                st.rerun()
+
+# --- 3. असली प्लेयर स्क्रीन ---
+elif st.session_state.screen == "player":
+    song_data = songs_database[st.session_state.current_song]
+    
+    top_col1, top_col2 = st.columns([2, 10])
+    with top_col1:
+        if st.button("⬅️ Back"):
+            st.session_state.screen = "main"
+            st.session_state.current_song = None
+            st.rerun()
+            
+    with top_col2:
+        yt_link = song_data["youtube_link"]
+        st.markdown(f"<h1 style='text-align: left; margin-left: 20px;'>🎶 Now Playing: {song_data['display_name']}</h1>", unsafe_allow_html=True)
+        st.markdown(f"<p style='text-align: left; margin-left: 20px; color: #ff4b4b; font-size: 16px; font-weight: bold;'>🔗 Original Song Link: (<a href='{yt_link}' target='_blank' style='color:#00f2fe; text-decoration: underline;'>{yt_link}</a>)</p>", unsafe_allow_html=True)
+    st.write("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
+
+    video_col, lyrics_col = st.columns([1, 1])
+    
+    with video_col:
+        # 👑 स्मार्ट पाथ चेक
+        current_video_path = find_file(song_data["video_file_path"])
+        
+        if os.path.exists(current_video_path):
+            with open(current_video_path, 'rb') as video_file:
+                video_bytes = video_file.read()
+            st.video(video_bytes, autoplay=True, loop=True, muted=True)
+        else:
+            st.error(f"वीडियो फाइल मिसिंग है: {song_data['video_file_path']}") 
+        
+    # 👑 स्मार्ट पाथ से ऑडियो लोड करना
+    current_song_path = find_file(song_data["audio_file_path"])
+    
+    audio_base64 = ""
+    if os.path.exists(current_song_path):
+        with open(current_song_path, "rb") as f:
+            audio_bytes = f.read()
+            audio_base64 = base64.b64encode(audio_bytes).decode()
+    else:
+        st.error(f"ऑडियो फाइल मिसिंग है: {song_data['audio_file_path']}")
+        
+    lyrics_json = json.dumps(song_data["lyrics_timed"])
+    
+    with lyrics_col:
+        st.components.v1.html(f"""
+            <div style="display: flex; flex-direction: column; gap: 10px; font-family: 'Poppins', sans-serif;">
+                
+                <button id="js-replay-btn" style="background-color: #ff4b4b; color: white; border-radius: 6px; font-weight: bold; border: none; padding: 10px; width: 100%; cursor: pointer; font-size: 14px;">
+                    🔄 Replay Song & Lyrics (शुरू से चलाएं)
+                </button>
+
+                <audio id="main-audio" controls autoplay style="width: 100%; border-radius: 8px;">
+                    <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3">
+                </audio>
+
+                <div id="lyrics-box" style="background: #0d0e12; border-radius: 12px; padding: 20px; border: 2px solid #ff4b4b; height: 250px; box-shadow: inset 0 0 30px rgba(0,0,0,0.9); overflow-y: auto; text-align: center; scroll-behavior: smooth;">
+                    <div id="lyrics-content" style="display: flex; flex-direction: column; gap: 18px; padding-top: 90px; padding-bottom: 90px;"></div>
+                </div>
+            </div>
+
+            <script>
+                const lyricsData = {lyrics_json};
+                const box = document.getElementById('lyrics-box');
+                const container = document.getElementById('lyrics-content');
+                const audio = document.getElementById('main-audio');
+                const replayBtn = document.getElementById('js-replay-btn');
+                
+                lyricsData.forEach((item, index) => {{
+                    let div = document.createElement('div');
+                    div.innerText = item.text;
+                    div.id = 'line-' + index;
+                    div.style.fontSize = '22px';
+                    div.style.fontWeight = '800';
+                    div.style.color = '#444';
+                    div.style.transition = 'all 0.3s ease';
+                    div.style.transform = 'scale(0.9)';
+                    container.appendChild(div);
+                }});
+
+                audio.addEventListener('timeupdate', () => {{
+                    let currentTime = audio.currentTime;
+                    let activeIndex = -1;
+
+                    for (let i = 0; i < lyricsData.length; i++) {{
+                        if (currentTime >= lyricsData[i].time) {{
+                            activeIndex = i;
+                        }}
+                    }}
+
+                    for (let i = 0; i < lyricsData.length; i++) {{
+                        let lineDiv = document.getElementById('line-' + i);
+                        if (i === activeIndex) {{
+                            lineDiv.style.background = 'linear-gradient(45deg, #ff4b4b, #ff6e40, #fbc02d, #00f2fe)';
+                            lineDiv.style.webkitBackgroundClip = 'text';
+                            lineDiv.style.webkitTextFillColor = 'transparent';
+                            lineDiv.style.transform = 'scale(1.15)';
+                            lineDiv.style.textShadow = '0 0 15px rgba(255, 75, 75, 0.5)';
+                            
+                            let offsetTop = lineDiv.offsetTop - box.offsetTop;
+                            box.scrollTop = offsetTop - (box.clientHeight / 2) + (lineDiv.clientHeight / 2);
+                        }} else if (i < activeIndex) {{
+                            lineDiv.style.background = 'none';
+                            lineDiv.style.webkitTextFillColor = '#666';
+                            lineDiv.style.transform = 'scale(0.95)';
+                            lineDiv.style.textShadow = 'none';
+                        }} else {{
+                            lineDiv.style.background = 'none';
+                            lineDiv.style.webkitTextFillColor = '#333';
+                            lineDiv.style.transform = 'scale(0.9)';
+                            lineDiv.style.textShadow = 'none';
+                        }}
+                    }}
+                }});
+
+                replayBtn.addEventListener('click', () => {{
+                    audio.currentTime = 0;
+                    audio.play();
+                    box.scrollTop = 0;
+                }});
+            </script>
+        """, height=380)
