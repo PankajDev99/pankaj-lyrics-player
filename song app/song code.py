@@ -106,8 +106,8 @@ songs_database = {
     "kitab":{
         "display_name": "KITAB",
                 "artist": "Mr Dutt, Vipin Foji",
-                "video_file_path": "KITAB_VIDEO.mp4",
-                "audio_file_path": "KITAB.mp3",
+                "video_file_path": "song app/KITAB_VIDEO.mp4",
+                "audio_file_path": "song app/KITAB.mp3",
                 "lyrics_timed": [
                     {"time": 0.0, "text": "......."},
                     {"time": 16.0, "text": " Tane Main Likhu Rani Dil Ki "},
