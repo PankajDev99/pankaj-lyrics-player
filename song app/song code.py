@@ -2,32 +2,25 @@ import streamlit as st
 import os
 import json
 import base64
+from PIL import Image
 
-# PWA Custom Manifest (यह Chrome को आपका लोगो और नाम मजबूरी में दिखाएगा)
-manifest_json = """
-{
-  "short_name": "PLP",
-  "name": "PANKAJ LYRICS PLAYER",
-  "icons": [
-    {
-      "src": "logo.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "logo.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ],
-  "start_url": ".",
-  "background_color": "#0e1117",
-  "theme_color": "#0e1117",
-  "display": "standalone"
-}
-"""
+# 👑 1. सबसे ऊपर यह होना चाहिए (यही स्क्रीन को पूरा फैलाता है)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+logo_path = os.path.join(BASE_DIR, "logo.png")
+
+if os.path.exists(logo_path):
+    app_logo = Image.open(logo_path)
+else:
+    app_logo = "🎵"
+
+st.set_page_config(
+    page_title="PLP - PANKAJ LYRICS PLAYER",
+    page_icon=app_logo,
+    layout="wide"  # 👈 यह स्क्रीन को वाइड (फैला हुआ) रखता है
+)
+
+# 2. इसके बाद अपना manifest_json वाला कोड रखें...
+manifest_json = """..."""
 
 # HTML में इन्जेक्ट करें
 manifest_b64 = base64.b64encode(manifest_json.encode()).decode()
