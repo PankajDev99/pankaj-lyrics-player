@@ -174,8 +174,15 @@ if st.session_state.screen == "main":
         search_query = st.text_input("(गाने का नाम लिखें):", "").strip().lower()
         
         if st.button("🚀 FIND & PLAY"):
-            if search_query in songs_database:
-                st.session_state.current_song = search_query
+            # यह लॉजिक स्मॉल और कैपिटल दोनों लेटर्स को अपने आप मैच कर लेगा
+            matched_key = None
+            for key in songs_database.keys():
+                if key.lower() == search_query.lower():
+                    matched_key = key
+                    break
+
+            if matched_key:
+                st.session_state.current_song = matched_key
                 st.session_state.screen = "confirm"
                 st.rerun()
             elif search_query == "":
