@@ -103,7 +103,7 @@ songs_database = {
     },
 
 
-    "KITAB":{
+    "kitab":{
         "display_name": "KITAB",
                 "artist": "Mr Dutt, Vipin Foji",
                 "audio_file_path": "song app/KITAB.mp3",
