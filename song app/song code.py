@@ -2,27 +2,44 @@ import streamlit as st
 import os
 import json
 import base64
-from PIL import Image
 
-# 1. इमेज का पाथ सेट करें
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-logo_path = os.path.join(BASE_DIR, "logo.png")
+# PWA Custom Manifest (यह Chrome को आपका लोगो और नाम मजबूरी में दिखाएगा)
+manifest_json = """
+{
+  "short_name": "PLP",
+  "name": "PANKAJ LYRICS PLAYER",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": ".",
+  "background_color": "#0e1117",
+  "theme_color": "#0e1117",
+  "display": "standalone"
+}
+"""
 
-# 2. इमेज खोलें
-logo_image = Image.open(logo_path)
-
-# 3. पेज कॉन्फ़िग में लोगो सेट करें
-st.set_page_config(
-    page_title="PLP", 
-    page_icon=logo_image, 
-    layout="wide"
-)
-st.markdown("""
+# HTML में इन्जेक्ट करें
+manifest_b64 = base64.b64encode(manifest_json.encode()).decode()
+st.markdown(
+    f"""
     <head>
-        <link rel="icon" type="image/png" href="logo.png">
+        <link rel="manifest" href="data:application/manifest+json;base64,{manifest_b64}">
         <link rel="apple-touch-icon" href="logo.png">
     </head>
-""", unsafe_allow_html=True)
+    """,
+    unsafe_allow_html=True
+)
 
 st.markdown("""
     <style>
