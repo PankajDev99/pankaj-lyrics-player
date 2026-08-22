@@ -248,16 +248,13 @@ elif st.session_state.screen == "player":
 
     # 1. वीडियो प्लेयर
     with video_col:
+        # अगर वीडियो फाइल मौजूद है
         if os.path.exists(abs_video_path):
-            with open(abs_video_path, 'rb') as v_file:
-                video_bytes = v_file.read()
-                video_b64 = base64.b64encode(video_bytes).decode()
-                
-            st.components.v1.html(f"""
-                <video width="100%" height="280" autoplay loop muted controls style="border-radius:12px; object-fit: cover;">
-                    <source src="data:video/mp4;base64,{video_b64}" type="video/mp4">
-                </video>
-            """, height=290)
+            try:
+                with open(abs_video_path, 'rb') as v_file:
+                    st.video(v_file.read(), format="video/mp4", autoplay=True, loop=True, muted=True)
+            except Exception as e:
+                st.error("वीडियो फ़ाइल लोड करने में समस्या आई।")
         else:
             st.error(f"❌ वीडियो फाइल नहीं मिली: {v_name}")
 
