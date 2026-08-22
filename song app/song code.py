@@ -2,9 +2,21 @@ import streamlit as st
 import os
 import json
 import base64
+from PIL import Image
 
-# पेज सेटिंग्स
-st.set_page_config(page_title="PANKAJ LYRICS - OFFICIAL PLAYER", layout="wide")
+# 1. इमेज का पाथ सेट करें
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+logo_path = os.path.join(BASE_DIR, "logo.png")
+
+# 2. इमेज खोलें
+logo_image = Image.open(logo_path)
+
+# 3. पेज कॉन्फ़िग में लोगो सेट करें
+st.set_page_config(
+    page_title="PANKAJ LYRICS - OFFICIAL PLAYER", 
+    page_icon=logo_image, 
+    layout="wide"
+)
 
 st.markdown("""
     <style>
