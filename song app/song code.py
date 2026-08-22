@@ -17,6 +17,12 @@ st.set_page_config(
     page_icon=logo_image, 
     layout="wide"
 )
+st.markdown("""
+    <head>
+        <link rel="icon" type="image/png" href="logo.png">
+        <link rel="apple-touch-icon" href="logo.png">
+    </head>
+""", unsafe_allow_html=True)
 
 st.markdown("""
     <style>
