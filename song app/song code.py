@@ -13,7 +13,7 @@ logo_image = Image.open(logo_path)
 
 # 3. पेज कॉन्फ़िग में लोगो सेट करें
 st.set_page_config(
-    page_title="PANKAJ LYRICS - OFFICIAL PLAYER", 
+    page_title="PLP", 
     page_icon=logo_image, 
     layout="wide"
 )
