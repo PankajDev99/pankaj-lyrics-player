@@ -240,16 +240,23 @@ elif st.session_state.screen == "player":
     with video_col:
         current_video_path = song_data["video_file_path"]
         
-        import os
-        if os.path.exists(current_video_path):
-            # 👑 यहाँ हम Streamlit के डिफ़ॉल्ट प्लेयर की जगह HTML5 प्लेयर यूज़ करेंगे 
-            # जो वीडियो को बिना रुके बार-बार (Infinity Loop) चलाता रहेगा
-            with open(current_video_path, 'rb') as video_file:
-                video_bytes = video_file.read()
-            
-            st.video(video_bytes, autoplay=True, loop=True, muted=True)
+        # प्रोजेक्ट की डायरेक्टरी से सही पाथ लेना
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        full_video_path = os.path.join(BASE_DIR, current_video_path)
+        
+        if os.path.exists(full_video_path):
+            with open(full_video_path, 'rb') as v_file:
+                video_bytes = v_file.read()
+                video_b64 = base64.b64encode(video_bytes).decode()
+                
+            st.components.v1.html(f"""
+                <video width="100%" height="280" autoplay loop muted controls style="border-radius:12px; object-fit: cover;">
+                    <source src="data:video/mp4;base64,{video_b64}" type="video/mp4">
+                    आपका ब्राउज़र यह वीडियो सपोर्ट नहीं करता।
+                </video>
+            """, height=290)
         else:
-            st.error(f"वीडियो फाइल मिसिंग है: {current_video_path}") 
+            st.error(f"❌ वीडियो फाइल मिसिंग है: {current_video_path}")
         
         
             # 👑 पुराने ग्लोबल audio_path को हटाकर अब हम सीधे चुने हुए गाने का पाथ यहाँ पढ़ेंगे
