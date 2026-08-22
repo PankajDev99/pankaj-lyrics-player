@@ -238,11 +238,10 @@ elif st.session_state.screen == "player":
     video_col, lyrics_col = st.columns([1, 1])
     
     with video_col:
-        current_video_path = song_data["video_file_path"]
-        
-        # प्रोजेक्ट की डायरेक्टरी से सही पाथ लेना
+        # 👑 os.path.abspath यह सुनिश्चित करेगा कि फाइल हमेशा .py स्क्रिप्ट के पास से ही उठे
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-        full_video_path = os.path.join(BASE_DIR, current_video_path)
+        file_name = os.path.basename(song_data["video_file_path"])
+        full_video_path = os.path.join(BASE_DIR, file_name)
         
         if os.path.exists(full_video_path):
             with open(full_video_path, 'rb') as v_file:
@@ -256,7 +255,7 @@ elif st.session_state.screen == "player":
                 </video>
             """, height=290)
         else:
-            st.error(f"❌ वीडियो फाइल मिसिंग है: {current_video_path}")
+            st.error(f"❌ वीडियो फाइल मिसिंग है: {file_name}")
         
         
             # 👑 पुराने ग्लोबल audio_path को हटाकर अब हम सीधे चुने हुए गाने का पाथ यहाँ पढ़ेंगे
