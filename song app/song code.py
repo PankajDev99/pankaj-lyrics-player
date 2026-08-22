@@ -10,7 +10,7 @@ st.markdown("""
     <style>
     .main .block-container { padding-top: 0.5rem; padding-bottom: 0.5rem; }
     h1 { 
-        color: #ff4b4b; font-family: 'Poppins', sans-serif; font-weight: 800; 
+        color: light black; font-family: 'Poppins', sans-serif; font-weight: 800; 
         font-size: 28px; margin: 0px; text-shadow: 0px 0px 10px rgba(255, 75, 75, 0.4);
         text-align: center;
     }
