@@ -128,7 +128,6 @@
             transition: all 0.3s ease;
         }
 
-        /* Premium Animation Effects */
         .lyrics-container.premium-anim {
             animation: neonPulse 2s infinite alternate;
             text-shadow: 0 0 10px var(--accent-color), 0 0 20px var(--accent-color);
@@ -190,7 +189,6 @@
             font-size: 1.2rem;
         }
 
-        /* Ad Banner Area for Free Users */
         .ad-banner {
             background: #222;
             padding: 10px;
@@ -202,7 +200,6 @@
             align-items: center;
         }
 
-        /* Modals */
         .modal {
             display: none;
             position: fixed;
@@ -238,15 +235,13 @@
     </header>
 
     <div class="main-container">
-        <!-- Sidebar Playlist -->
         <div class="sidebar">
             <div class="playlist-header">Playlist</div>
             <ul class="song-list" id="songList">
-                <!-- Dynamically populated via JS -->
+                <!-- Dynamically populated from backend -->
             </ul>
         </div>
 
-        <!-- Main Player UI -->
         <div class="player-area">
             <div id="lyricsDisplay" class="lyrics-container">
                 Select a song to play
@@ -265,13 +260,11 @@
         </div>
     </div>
 
-    <!-- Free User Ad Banner -->
     <div class="ad-banner" id="adBanner">
         <span>Ad: Upgrade to Premium for ₹99/month to remove ads and unlock neon lyric animations!</span>
         <button class="btn" style="padding: 4px 10px; font-size: 0.8rem;" onclick="openPremiumModal()">Upgrade</button>
     </div>
 
-    <!-- Premium Modal -->
     <div class="modal" id="premiumModal">
         <div class="modal-content">
             <h2>Unlock Premium Vibes</h2>
@@ -281,7 +274,6 @@
         </div>
     </div>
 
-    <!-- Limit Reached Modal -->
     <div class="modal" id="limitModal">
         <div class="modal-content">
             <h2>Free Limit Reached</h2>
@@ -292,32 +284,7 @@
     </div>
 
     <script>
-        // Sample Song Data with Lyrics Timings
-        const playlist = [
-            {
-                title: "Kaun Hoga - Track 1",
-                artist: "Pankaj",
-                audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-                lyrics: [
-                    { time: 0, text: "🎵 Music starting..." },
-                    { time: 5, text: "Kyon kar hai yeh raahein..." },
-                    { time: 12, text: "Achanak se badle nazaare..." },
-                    { time: 20, text: "Dil ki baatein kaun jaane..." }
-                ]
-            },
-            {
-                title: "Aesthetic Vibes - Track 2",
-                artist: "Pankaj",
-                audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
-                lyrics: [
-                    { time: 0, text: "🎵 Beat drops in..." },
-                    { time: 6, text: "Upar se aate yeh khwaab..." },
-                    { time: 15, text: "Side se nikla yeh saaya..." },
-                    { time: 25, text: "Zindagi ka naya safar..." }
-                ]
-            }
-        ];
-
+        let playlist = [];
         let currentSongIndex = 0;
         let isPlaying = false;
         let isPremium = localStorage.getItem("pankaj_premium") === "true";
@@ -332,11 +299,10 @@
         const songListEl = document.getElementById("songList");
         const adBanner = document.getElementById("adBanner");
 
-        // Initialize UI based on Premium status
         function updateUIState() {
             if (isPremium) {
                 adBanner.style.display = "none";
-                document.getElementById("premiumBtn.textContent") = "⭐ Premium Active";
+                document.getElementById("premiumBtn").textContent = "⭐ Premium Active";
                 lyricsDisplay.classList.add("premium-anim");
             } else {
                 adBanner.style.display = "flex";
@@ -344,13 +310,26 @@
             }
         }
 
-        // Render Playlist
+        async function fetchSongs() {
+            try {
+                const response = await fetch('/api/songs');
+                const data = await response.json();
+                playlist = Object.values(data);
+                renderPlaylist();
+                if (playlist.length > 0) {
+                    audio.src = playlist[currentSongIndex].audio_url;
+                }
+            } catch (error) {
+                console.error("Failed to load songs from backend", error);
+            }
+        }
+
         function renderPlaylist() {
             songListEl.innerHTML = "";
             playlist.forEach((song, index) => {
                 const li = document.createElement("li");
                 li.className = `song-item ${index === currentSongIndex ? 'active' : ''}`;
-                li.innerHTML = `<strong>${song.title}</strong><br><small>${song.artist}</small>`;
+                li.innerHTML = `<strong>${song.display_name}</strong><br><small>${song.artist}</small>`;
                 li.onclick = () => checkLimitAndPlay(index);
                 songListEl.appendChild(li);
             });
@@ -370,14 +349,13 @@
 
         function playSong(index) {
             currentSongIndex = index;
-            audio.src = playlist[currentSongIndex].audioSrc;
+            audio.src = playlist[currentSongIndex].audio_url;
             audio.play();
             isPlaying = true;
             playPauseBtn.textContent = "⏸";
             renderPlaylist();
         }
 
-        // Play/Pause Toggle
         playPauseBtn.onclick = () => {
             if (!isPremium) {
                 freeClicks++;
@@ -393,14 +371,13 @@
                 isPlaying = false;
                 playPauseBtn.textContent = "▶";
             } else {
-                if(!audio.src) audio.src = playlist[currentSongIndex].audioSrc;
+                if (!audio.src && playlist.length > 0) audio.src = playlist[currentSongIndex].audio_url;
                 audio.play();
                 isPlaying = true;
                 playPauseBtn.textContent = "⏸";
             }
         };
 
-        // Next & Prev Controls
         document.getElementById("nextBtn").onclick = () => {
             let nextIndex = (currentSongIndex + 1) % playlist.length;
             checkLimitAndPlay(nextIndex);
@@ -411,31 +388,29 @@
             checkLimitAndPlay(prevIndex);
         };
 
-        // Auto-Play Next Song on Track End
         audio.onended = () => {
             let nextIndex = (currentSongIndex + 1) % playlist.length;
             playSong(nextIndex);
         };
 
-        // Audio Progress & Synchronized Lyrics Update
         audio.ontimeupdate = () => {
-            if (audio.duration) {
+            if (audio.duration && playlist.length > 0) {
                 let progressPercent = (audio.currentTime / audio.duration) * 100;
                 progressBar.style.width = `${progressPercent}%`;
 
-                // Update Lyrics based on timestamp
-                let currentLyrics = playlist[currentSongIndex].lyrics;
-                let activeLine = currentLyrics[0].text;
-                for (let i = 0; i < currentLyrics.length; i++) {
-                    if (audio.currentTime >= currentLyrics[i].time) {
-                        activeLine = currentLyrics[i].text;
+                let currentLyrics = playlist[currentSongIndex].lyrics_timed;
+                if (currentLyrics && currentLyrics.length > 0) {
+                    let activeLine = currentLyrics[0].text;
+                    for (let i = 0; i < currentLyrics.length; i++) {
+                        if (audio.currentTime >= currentLyrics[i].time) {
+                            activeLine = currentLyrics[i].text;
+                        }
                     }
+                    lyricsDisplay.textContent = activeLine;
                 }
-                lyricsDisplay.textContent = activeLine;
             }
         };
 
-        // Click on Progress Bar to Seek
         progressBarContainer.onclick = (e) => {
             const width = progressBarContainer.clientWidth;
             const clickX = e.offsetX;
@@ -443,7 +418,6 @@
             audio.currentTime = (clickX / width) * duration;
         };
 
-        // Modals Control
         document.getElementById("premiumBtn").onclick = openPremiumModal;
         function openPremiumModal() { document.getElementById("premiumModal").style.display = "flex"; }
         function closePremiumModal() { document.getElementById("premiumModal").style.display = "none"; }
@@ -454,10 +428,9 @@
             localStorage.setItem("pankaj_premium", "true");
             updateUIState();
             closePremiumModal();
-            alert("Congratulations! Premium Subscription Activated successfully (₹99/month unlocked).");
+            alert("Congratulations! Premium Subscription Activated successfully.");
         }
 
-        // Standalone Mode Detection for APK Download Button
         window.addEventListener('DOMContentLoaded', () => {
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
             const downloadBtn = document.getElementById("downloadAppBtn");
@@ -468,7 +441,7 @@
                 };
             }
             updateUIState();
-            renderPlaylist();
+            fetchSongs();
         });
     </script>
 </body>
