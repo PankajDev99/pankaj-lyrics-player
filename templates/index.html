@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -200,6 +201,8 @@
             font-size: 0.9rem;
             transition: 0.2s;
             box-shadow: 0 0 10px rgba(0, 255, 127, 0.2);
+            text-decoration: none;
+            display: inline-block;
         }
 
         .btn:hover {
@@ -299,6 +302,10 @@
             100% { transform: scale(1.02); filter: hue-rotate(30deg); }
         }
 
+        .video-link-container {
+            margin: 10px 0;
+        }
+
         .controls-area {
             display: flex;
             flex-direction: column;
@@ -387,7 +394,6 @@
 </head>
 <body>
 
-    <!-- Login / Signup Screen Modal -->
     <div id="loginScreen">
         <div class="login-card">
             <h2>PLP PLAYER</h2>
@@ -439,6 +445,10 @@
                 Select a track to play
             </div>
 
+            <div class="video-link-container">
+                <a id="officialVideoBtn" href="#" target="_blank" class="btn btn-outline" style="font-size: 0.8rem; display: none;">📺 Watch Official Video</a>
+            </div>
+
             <div class="controls-area">
                 <div class="progress-bar-container" id="progressBarContainer">
                     <div class="progress-bar" id="progressBar"></div>
@@ -480,7 +490,6 @@
         let currentSongIndex = 0;
         let isPlaying = false;
         
-        // Yahan apni original email aur password set kar lena
         const OWNER_EMAIL = "pankajkhatik0999@gmail.com"; 
         const OWNER_PASSWORD = "Pankaj khatik0999"; 
 
@@ -498,6 +507,7 @@
         const trackPillsContainer = document.getElementById("trackPillsContainer");
         const adBanner = document.getElementById("adBanner");
         const searchInput = document.getElementById("searchInput");
+        const officialVideoBtn = document.getElementById("officialVideoBtn");
 
         function switchAuthMode(mode) {
             isAuthModeLogin = (mode === 'login');
@@ -523,14 +533,12 @@
             
             localStorage.setItem("pankaj_user", email);
             
-            // Owner check
             if (email === OWNER_EMAIL) {
                 localStorage.setItem("pankaj_premium", "true");
-                localStorage.setItem("pankaj_clicks", "0"); // Reset clicks for owner
+                localStorage.setItem("pankaj_clicks", "0");
                 isPremium = true;
                 freeClicks = 0;
             } else {
-                // If it's a new register or regular user
                 if (!isAuthModeLogin) {
                     localStorage.setItem("pankaj_clicks", "0");
                     freeClicks = 0;
@@ -619,17 +627,24 @@
         }
 
         function playSong(index) {
-        currentSongIndex = index;
-        audio.src = playlist[currentSongIndex].audio_url;
-        audio.play();
-        isPlaying = true;
-        playPauseBtn.textContent = "⏸";
-        renderPills(playlist);
+            currentSongIndex = index;
+            const song = playlist[currentSongIndex];
+            audio.src = song.audio_url;
+            audio.play();
+            isPlaying = true;
+            playPauseBtn.textContent = "⏸";
+            renderPills(playlist);
 
-    // Track play hote hi player area par smooth scroll ya focus karne ke liye
-        document.querySelector(".player-center-area").scrollIntoView({ behavior: 'smooth' });
-    }
-        
+            // Show Official Video Link for the current playing song
+            if (song && song.official_url) {
+                officialVideoBtn.href = song.official_url;
+                officialVideoBtn.style.display = "inline-block";
+            } else {
+                officialVideoBtn.style.display = "none";
+            }
+
+            document.querySelector(".player-center-area").scrollIntoView({ behavior: 'smooth' });
+        }
 
         playPauseBtn.onclick = () => {
             let currentEmail = localStorage.getItem("pankaj_user");
@@ -651,6 +666,11 @@
                 audio.play();
                 isPlaying = true;
                 playPauseBtn.textContent = "⏸";
+                const song = playlist[currentSongIndex];
+                if (song && song.official_url) {
+                    officialVideoBtn.href = song.official_url;
+                    officialVideoBtn.style.display = "inline-block";
+                }
             }
         };
 

@@ -1,3 +1,4 @@
+# server.py
 from flask import Flask, render_template, jsonify, send_from_directory, request, session
 import os
 import sqlite3
@@ -6,7 +7,6 @@ import hashlib
 app = Flask(__name__)
 app.secret_key = "pankaj_secret_key_secure"
 
-# Database Initialization for Users & Subscriptions
 def init_db():
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
@@ -24,7 +24,6 @@ def init_db():
 
 init_db()
 
-# Your Songs & Lyrics Database
 SONGS_DATABASE = {
     "dhundle manzar": {
         "display_name": "Dhundle Manzar",
@@ -144,7 +143,6 @@ def home():
 def get_songs():
     return jsonify(SONGS_DATABASE)
 
-# Authentication & Subscription API Routes
 @app.route('/api/register', methods=['POST'])
 def register():
     data = request.json
@@ -166,9 +164,7 @@ def login():
     data = request.json
     email = data.get('email')
     password = hashlib.sha256(data.get('password').encode()).hexdigest()
-
-    # Aapki admin/developer email jo hamesha free aur premium rahegi
-    ADMIN_EMAIL = "pankajkhatik0999@gmail.com" # Yahan apni real email daal dena
+    ADMIN_EMAIL = "pankajkhatik0999@gmail.com"
 
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
@@ -178,7 +174,6 @@ def login():
 
     if user or email == ADMIN_EMAIL:
         session['user_email'] = email
-        # Agar aapki admin email hai toh direct premium true kar do
         is_prem = True if email == ADMIN_EMAIL else bool(user[1])
         return jsonify({
             "success": True, 
