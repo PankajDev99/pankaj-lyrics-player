@@ -336,7 +336,6 @@
                 </a>
                 
                 {% if user %}
-                    <!-- Profile Container with Badge -->
                     <div class="profile-container" onclick="toggleProfileMenu()">
                         {% if role == 'owner' %}
                             <div class="badge-owner">👑 OWNER</div>
@@ -348,7 +347,6 @@
                         <span style="font-size:10px; color:#00ff80;">▼</span>
                     </div>
 
-                    <!-- Dropdown for Settings and Logout -->
                     <div id="profile-dropdown" class="profile-dropdown">
                         <div style="padding:10px 15px; font-size:11px; border-bottom:1px solid rgba(0,255,128,0.2); color:#aaa; word-break:break-all;">{{ user }}</div>
                         <button onclick="openSettings()">⚙️ Settings</button>
@@ -436,7 +434,6 @@
         let currentLyrics = [];
         let currentSongKey = '';
         let userRole = "{{ role }}";
-        let audioCtx, analyser, source, canvas, ctx;
 
         fetch('/api/songs')
             .then(res => res.json())
@@ -456,7 +453,6 @@
             menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
         }
 
-        // Close dropdown if clicked outside
         window.onclick = function(event) {
             if (!event.target.closest('.profile-container') && !event.target.closest('.profile-dropdown')) {
                 let menu = document.getElementById('profile-dropdown');
@@ -604,4 +600,3 @@
     </script>
 </body>
 </html>
-```[cite: 5, 7]
