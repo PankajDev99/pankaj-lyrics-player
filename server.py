@@ -1,8 +1,8 @@
-# server.py
-from flask import Flask, render_template, jsonify, send_from_directory
+from flask import Flask, render_template, jsonify, send_from_directory, request, session, redirect, url_for
 import os
 
 app = Flask(__name__)
+app.secret_key = "pankaj_secret_key_here"  # Required for session management
 
 SONGS_DATABASE = {
     "dhundle manzar": {
@@ -117,11 +117,26 @@ SONGS_DATABASE = {
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    user = session.get('user', None)
+    return render_template('index.html', user=user)
 
 @app.route('/api/songs')
 def get_songs():
     return jsonify(SONGS_DATABASE)
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.json
+    email = data.get('email', '')
+    if email:
+        session['user'] = email
+        return jsonify({"status": "success", "email": email})
+    return jsonify({"status": "error", "message": "Invalid email"}), 400
+
+@app.route('/api/logout', methods=['POST'])
+def logout():
+    session.pop('user', None)
+    return jsonify({"status": "success"})
 
 @app.route('/sw.js')
 def service_worker():
