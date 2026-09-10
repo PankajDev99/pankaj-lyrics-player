@@ -619,13 +619,17 @@
         }
 
         function playSong(index) {
-            currentSongIndex = index;
-            audio.src = playlist[currentSongIndex].audio_url;
-            audio.play();
-            isPlaying = true;
-            playPauseBtn.textContent = "⏸";
-            renderPills(playlist);
-        }
+        currentSongIndex = index;
+        audio.src = playlist[currentSongIndex].audio_url;
+        audio.play();
+        isPlaying = true;
+        playPauseBtn.textContent = "⏸";
+        renderPills(playlist);
+
+    // Track play hote hi player area par smooth scroll ya focus karne ke liye
+        document.querySelector(".player-center-area").scrollIntoView({ behavior: 'smooth' });
+    }
+        
 
         playPauseBtn.onclick = () => {
             let currentEmail = localStorage.getItem("pankaj_user");
