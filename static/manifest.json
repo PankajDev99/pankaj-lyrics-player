@@ -1,0 +1,20 @@
+{
+  "short_name": "PLP Player",
+  "name": "PLP - Pankaj Lyrics Player",
+  "icons": [
+    {
+      "src": "/static/logo.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/static/logo.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#030705",
+  "theme_color": "#00ff80",
+  "display": "standalone"
+}
