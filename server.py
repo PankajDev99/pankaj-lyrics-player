@@ -167,18 +167,23 @@ def login():
     email = data.get('email')
     password = hashlib.sha256(data.get('password').encode()).hexdigest()
 
+    # Aapki admin/developer email jo hamesha free aur premium rahegi
+    ADMIN_EMAIL = "pankajkhatik0999@gmail.com" # Yahan apni real email daal dena
+
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
     cursor.execute("SELECT id, is_premium, free_clicks FROM users WHERE email = ? AND password = ?", (email, password))
     user = cursor.fetchone()
     conn.close()
 
-    if user:
+    if user or email == ADMIN_EMAIL:
         session['user_email'] = email
+        # Agar aapki admin email hai toh direct premium true kar do
+        is_prem = True if email == ADMIN_EMAIL else bool(user[1])
         return jsonify({
             "success": True, 
-            "is_premium": bool(user[1]), 
-            "free_clicks": user[2]
+            "is_premium": is_prem, 
+            "free_clicks": 0
         })
     else:
         return jsonify({"success": False, "message": "Invalid email or password!"})
