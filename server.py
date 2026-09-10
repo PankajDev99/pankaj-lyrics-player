@@ -1,8 +1,30 @@
-from flask import Flask, render_template, jsonify, send_from_directory
+from flask import Flask, render_template, jsonify, send_from_directory, request, session
 import os
+import sqlite3
+import hashlib
 
 app = Flask(__name__)
+app.secret_key = "pankaj_secret_key_secure"
 
+# Database Initialization for Users & Subscriptions
+def init_db():
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            is_premium INTEGER DEFAULT 0,
+            free_clicks INTEGER DEFAULT 0
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+init_db()
+
+# Your Songs & Lyrics Database
 SONGS_DATABASE = {
     "dhundle manzar": {
         "display_name": "Dhundle Manzar",
@@ -121,6 +143,58 @@ def home():
 @app.route('/api/songs')
 def get_songs():
     return jsonify(SONGS_DATABASE)
+
+# Authentication & Subscription API Routes
+@app.route('/api/register', methods=['POST'])
+def register():
+    data = request.json
+    email = data.get('email')
+    password = hashlib.sha256(data.get('password').encode()).hexdigest()
+
+    try:
+        conn = sqlite3.connect("database.db")
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO users (email, password) VALUES (?, ?)", (email, password))
+        conn.commit()
+        conn.close()
+        return jsonify({"success": True, "message": "Account created successfully!"})
+    except sqlite3.IntegrityError:
+        return jsonify({"success": False, "message": "Email already registered!"})
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.json
+    email = data.get('email')
+    password = hashlib.sha256(data.get('password').encode()).hexdigest()
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, is_premium, free_clicks FROM users WHERE email = ? AND password = ?", (email, password))
+    user = cursor.fetchone()
+    conn.close()
+
+    if user:
+        session['user_email'] = email
+        return jsonify({
+            "success": True, 
+            "is_premium": bool(user[1]), 
+            "free_clicks": user[2]
+        })
+    else:
+        return jsonify({"success": False, "message": "Invalid email or password!"})
+
+@app.route('/api/upgrade', methods=['POST'])
+def upgrade():
+    email = session.get('user_email')
+    if not email:
+        return jsonify({"success": False, "message": "Please login first!"})
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute("UPDATE users SET is_premium = 1 WHERE email = ?", (email,))
+    conn.commit()
+    conn.close()
+    return jsonify({"success": True, "message": "Subscription activated!"})
 
 @app.route('/sw.js')
 def service_worker():
