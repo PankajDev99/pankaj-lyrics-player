@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -164,7 +165,6 @@
             filter: invert(100%) hue-rotate(90deg);
         }
 
-        /* Canvas Neon Visualizer */
         #visualizer {
             width: 100%;
             height: 50px;
@@ -258,7 +258,6 @@
                 <input type="text" id="search-input" placeholder="Search track name...">
                 <button class="neon-btn" onclick="searchSong()">SEARCH</button>
             </div>
-            <!-- Download APK Button -->
             <a id="apk-download-btn" href="/static/PankajLyricsPlayer.apk" download class="neon-btn apk-btn" style="padding:6px 12px; font-size:10px;">
                 📲 DOWNLOAD APK
             </a>
@@ -267,6 +266,7 @@
     </div>
 
     <div class="container">
+        <!-- Main Library Screen -->
         <div id="screen-main">
             <div class="glass-card">
                 <h3 style="color:#00ff80; font-family:'Orbitron'; text-align:center; font-size:16px; margin-bottom:15px; letter-spacing:1px;">⚡ TRACK LIBRARY</h3>
@@ -274,6 +274,7 @@
             </div>
         </div>
 
+        <!-- Song Player Screen -->
         <div id="screen-player" style="display:none;">
             <div class="glass-card">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
@@ -290,7 +291,6 @@
                     </div>
                     <div>
                         <audio id="audio-player" controls autoplay crossorigin="anonymous"></audio>
-                        <!-- Dynamic Visualizer Canvas -->
                         <canvas id="visualizer"></canvas>
                         <div id="lyrics-box" class="style-dhundle">
                             <div id="lyrics-content"></div>
@@ -301,6 +301,7 @@
         </div>
     </div>
 
+    <!-- Mini Player Footer Bar -->
     <div id="mini-player" class="mini-player" style="display: none;" onclick="openFullPlayer()">
         <div class="mini-info">
             <div class="mini-icon">💿</div>
@@ -379,7 +380,6 @@
             document.getElementById('mini-song-name').innerText = song.display_name;
             document.getElementById('mini-artist-name').innerText = song.artist;
             
-            // Official Link Handler
             let officialBtn = document.getElementById('official-link');
             if(song.official_url) {
                 officialBtn.href = song.official_url;
@@ -460,15 +460,25 @@
 
         function searchSong() {
             let query = document.getElementById('search-input').value.trim().toLowerCase();
-            if(songsData[query]) playSong(query);
-            else alert("यह गाना उपलब्ध नहीं है!");
+            if(songsData[query]) {
+                playSong(query);
+            } else {
+                for(let key in songsData) {
+                    if(songsData[key].display_name.toLowerCase().includes(query)) {
+                        playSong(key);
+                        return;
+                    }
+                }
+                alert("यह गाना उपलब्ध नहीं है!");
+            }
         }
 
+        // Back button handler: hide player screen, show main screen, and show floating mini player if a song is active/playing
         function goBack() {
             document.getElementById('screen-player').style.display = 'none';
             document.getElementById('screen-main').style.display = 'block';
             let audio = document.getElementById('audio-player');
-            if (!audio.paused && currentSongKey) {
+            if (currentSongKey && audio.src) {
                 document.getElementById('mini-player').style.display = 'flex';
             }
         }
@@ -480,7 +490,6 @@
             document.getElementById('mini-player').style.display = 'none';
         }
 
-        // Hide APK Download Button If Installed/Standalone Mode
         function checkAppDisplayMode() {
             const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
             const apkBtn = document.getElementById('apk-download-btn');
@@ -491,28 +500,11 @@
 
         window.addEventListener('DOMContentLoaded', checkAppDisplayMode);
 
-        // Service Worker Registration for PWA
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/static/sw.js')
-                    .then(reg => console.log('Service Worker Registered!', reg))
-                    .catch(err => console.log('Service Worker Error:', err));
+                navigator.serviceWorker.register('/static/sw.js').catch(() => {});
             });
         }
-
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            const installBtn = document.getElementById('install-btn');
-            if (installBtn) {
-                installBtn.style.display = 'block';
-                installBtn.addEventListener('click', () => {
-                    installBtn.style.display = 'none';
-                    deferredPrompt.prompt();
-                });
-            }
-        });
     </script>
 </body>
 </html>
