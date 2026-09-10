@@ -26,7 +26,6 @@
             overflow: hidden;
         }
 
-        /* Login Screen Overlay */
         #loginScreen {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -40,7 +39,7 @@
         .login-card {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
-            padding: 40px;
+            padding: 35px;
             border-radius: 16px;
             width: 100%;
             max-width: 400px;
@@ -50,23 +49,42 @@
 
         .login-card h2 {
             color: var(--accent-color);
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
 
-        .login-card p {
+        .auth-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .auth-tab {
+            background: none;
+            border: none;
             color: #888;
-            font-size: 0.85rem;
-            margin-bottom: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.95rem;
+            padding-bottom: 5px;
+        }
+
+        .auth-tab.active {
+            color: var(--accent-color);
+            border-bottom: 2px solid var(--accent-color);
         }
 
         .form-group {
             margin-bottom: 15px;
             text-align: left;
+            position: relative;
         }
 
         .form-group label {
             display: block;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: #ccc;
             margin-bottom: 5px;
         }
@@ -87,6 +105,15 @@
             border-color: var(--accent-color);
         }
 
+        .eye-icon {
+            position: absolute;
+            right: 12px;
+            top: 34px;
+            cursor: pointer;
+            color: #888;
+            font-size: 1rem;
+        }
+
         .login-btn {
             width: 100%;
             background-color: var(--accent-color);
@@ -97,8 +124,17 @@
             font-weight: bold;
             cursor: pointer;
             font-size: 1rem;
-            margin-top: 10px;
+            margin-top: 5px;
             box-shadow: 0 0 10px rgba(0, 255, 127, 0.3);
+        }
+
+        .forgot-link {
+            display: block;
+            margin-top: 15px;
+            font-size: 0.8rem;
+            color: var(--accent-color);
+            cursor: pointer;
+            text-decoration: underline;
         }
 
         header {
@@ -351,22 +387,28 @@
 </head>
 <body>
 
-    <!-- Login Screen Modal -->
+    <!-- Login / Signup Screen Modal -->
     <div id="loginScreen">
         <div class="login-card">
             <h2>PLP PLAYER</h2>
-            <p>Enter your Gmail and create a password to start</p>
-            <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="tabLogin" onclick="switchAuthMode('login')">Login</button>
+                <button class="auth-tab" id="tabRegister" onclick="switchAuthMode('register')">Register / Sign Up</button>
+            </div>
+            
+            <form id="authForm" onsubmit="handleAuth(event)">
                 <div class="form-group">
-                    <label>Email Address</label>
+                    <label id="emailLabel">Email Address</label>
                     <input type="email" id="userEmail" class="form-input" placeholder="e.g. yourname@gmail.com" required>
                 </div>
                 <div class="form-group">
-                    <label>Create a Password</label>
-                    <input type="password" id="userPassword" class="form-input" placeholder="Create a new password for this app" required>
+                    <label id="passLabel">Create a Password</label>
+                    <input type="password" id="userPassword" class="form-input" placeholder="Enter password" required>
+                    <span class="eye-icon" onclick="togglePassword()">👁️</span>
                 </div>
-                <button type="submit" class="login-btn">Login / Enter Player</button>
+                <button type="submit" class="login-btn" id="authSubmitBtn">Login</button>
             </form>
+            <span class="forgot-link" onclick="forgotPassword()">Forgot Password?</span>
         </div>
     </div>
 
@@ -387,15 +429,11 @@
     </header>
 
     <div class="main-container">
-        <!-- Track Library Card Container -->
         <div class="track-library-card">
             <div class="library-title">⚡ TRACK LIBRARY</div>
-            <div class="track-pills" id="trackPillsContainer">
-                <!-- Dynamically populated from backend -->
-            </div>
+            <div class="track-pills" id="trackPillsContainer"></div>
         </div>
 
-        <!-- Player & Timed Lyrics Area -->
         <div class="player-center-area">
             <div id="lyricsDisplay" class="lyrics-container">
                 Select a track to play
@@ -442,10 +480,11 @@
         let currentSongIndex = 0;
         let isPlaying = false;
         
-        // Yahan apni original email id daal dena jo niche check ho rahi hai
-        const OWNER_EMAIL = "Pankajkhatik0999@gmail.com"; 
-        const OWNER_PASSWORD = "Pankaj khatik0999";
+        // Yahan apni original email aur password set kar lena
+        const OWNER_EMAIL = "pankajkhatik0999@gmail.com"; 
+        const OWNER_PASSWORD = "Pankaj khatik0999"; 
 
+        let isAuthModeLogin = true;
         let loggedInUser = localStorage.getItem("pankaj_user");
         let isPremium = localStorage.getItem("pankaj_premium") === "true";
         let freeClicks = parseInt(localStorage.getItem("pankaj_clicks") || "0");
@@ -460,27 +499,48 @@
         const adBanner = document.getElementById("adBanner");
         const searchInput = document.getElementById("searchInput");
 
-        function handleLogin(e) {
-    e.preventDefault();
-    const email = document.getElementById("userEmail").value.trim().toLowerCase();
-    const password = document.getElementById("userPassword").value.trim();
-    
-    localStorage.setItem("pankaj_user", email);
-    
-    // Check agar owner email aur password dono sahi hain
-    if (email === OWNER_EMAIL && password === OWNER_PASSWORD) {
-        localStorage.setItem("pankaj_premium", "true");
-        isPremium = true;
-    } else {
-        // Baaki users ke liye normal login (agar koi aur login kare)
-        localStorage.setItem("pankaj_premium", "false");
-        isPremium = false;
-    }
+        function switchAuthMode(mode) {
+            isAuthModeLogin = (mode === 'login');
+            document.getElementById("tabLogin").classList.toggle("active", isAuthModeLogin);
+            document.getElementById("tabRegister").classList.toggle("active", !isAuthModeLogin);
+            document.getElementById("authSubmitBtn").textContent = isAuthModeLogin ? "Login" : "Register / Sign Up";
+            document.getElementById("passLabel").textContent = isAuthModeLogin ? "Password" : "Create a Password";
+        }
 
-    document.getElementById("loginScreen").style.display = "none";
-    checkAuth();
-    fetchSongs();
-}
+        function togglePassword() {
+            const passInput = document.getElementById("userPassword");
+            passInput.type = passInput.type === "password" ? "text" : "password";
+        }
+
+        function forgotPassword() {
+            alert("Password recovery: If you are the owner, use your preset password. For other users, please clear browser data or use registered details.");
+        }
+
+        function handleAuth(e) {
+            e.preventDefault();
+            const email = document.getElementById("userEmail").value.trim().toLowerCase();
+            const password = document.getElementById("userPassword").value.trim();
+            
+            localStorage.setItem("pankaj_user", email);
+            
+            // Owner check
+            if (email === OWNER_EMAIL) {
+                localStorage.setItem("pankaj_premium", "true");
+                localStorage.setItem("pankaj_clicks", "0"); // Reset clicks for owner
+                isPremium = true;
+                freeClicks = 0;
+            } else {
+                // If it's a new register or regular user
+                if (!isAuthModeLogin) {
+                    localStorage.setItem("pankaj_clicks", "0");
+                    freeClicks = 0;
+                }
+            }
+
+            document.getElementById("loginScreen").style.display = "none";
+            checkAuth();
+            fetchSongs();
+        }
 
         function logout() {
             localStorage.removeItem("pankaj_user");
@@ -488,7 +548,7 @@
         }
 
         function checkAuth() {
-            if (!loggedInUser && !localStorage.getItem("pankaj_user")) {
+            if (!localStorage.getItem("pankaj_user")) {
                 document.getElementById("loginScreen").style.display = "flex";
             } else {
                 document.getElementById("loginScreen").style.display = "none";
@@ -502,7 +562,8 @@
         }
 
         function updateUIState() {
-            if (isPremium) {
+            let currentEmail = localStorage.getItem("pankaj_user");
+            if (isPremium || currentEmail === OWNER_EMAIL) {
                 adBanner.style.display = "none";
                 document.getElementById("premiumBtn").textContent = "⭐ Owner / VIP";
                 lyricsDisplay.classList.add("premium-anim");
@@ -528,7 +589,7 @@
 
         function renderPills(songsToRender) {
             trackPillsContainer.innerHTML = "";
-            songsToRender.forEach((song, index) => {
+            songsToRender.forEach((song) => {
                 const originalIndex = playlist.findIndex(s => s.display_name === song.display_name);
                 const button = document.createElement("button");
                 button.className = `track-pill ${originalIndex === currentSongIndex ? 'active' : ''}`;
