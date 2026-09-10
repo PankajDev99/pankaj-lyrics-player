@@ -87,11 +87,25 @@
             box-shadow: 0 0 15px rgba(0, 255, 128, 0.4);
             white-space: nowrap;
             transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .neon-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 0 25px rgba(0, 255, 128, 0.8);
+        }
+
+        .apk-btn {
+            background: linear-gradient(135deg, #00e5ff 0%, #0088cc 100%);
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+        }
+
+        .apk-btn:hover {
+            box-shadow: 0 0 25px rgba(0, 229, 255, 0.8);
         }
 
         .container { max-width: 1000px; margin: 25px auto 0 auto; padding: 0 15px; }
@@ -244,6 +258,10 @@
                 <input type="text" id="search-input" placeholder="Search track name...">
                 <button class="neon-btn" onclick="searchSong()">SEARCH</button>
             </div>
+            <!-- Download APK Button -->
+            <a id="apk-download-btn" href="/static/PankajLyricsPlayer.apk" download class="neon-btn apk-btn" style="padding:6px 12px; font-size:10px;">
+                📲 DOWNLOAD APK
+            </a>
             <button id="install-btn" class="neon-btn" style="display:none; padding:6px 12px; font-size:10px;">INSTALL</button>
         </div>
     </div>
@@ -462,29 +480,39 @@
             document.getElementById('mini-player').style.display = 'none';
         }
 
+        // Hide APK Download Button If Installed/Standalone Mode
+        function checkAppDisplayMode() {
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+            const apkBtn = document.getElementById('apk-download-btn');
+            if (isStandalone && apkBtn) {
+                apkBtn.style.display = 'none';
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', checkAppDisplayMode);
+
         // Service Worker Registration for PWA
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/static/sw.js')
-            .then(reg => console.log('Service Worker Registered!', reg))
-            .catch(err => console.log('Service Worker Error:', err));
-    });
-}
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/sw.js')
+                    .then(reg => console.log('Service Worker Registered!', reg))
+                    .catch(err => console.log('Service Worker Error:', err));
+            });
+        }
 
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    const installBtn = document.getElementById('install-btn');
-    if (installBtn) {
-        installBtn.style.display = 'block';
-        installBtn.addEventListener('click', () => {
-            installBtn.style.display = 'none';
-            deferredPrompt.prompt();
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const installBtn = document.getElementById('install-btn');
+            if (installBtn) {
+                installBtn.style.display = 'block';
+                installBtn.addEventListener('click', () => {
+                    installBtn.style.display = 'none';
+                    deferredPrompt.prompt();
+                });
+            }
         });
-    }
-});
-
     </script>
 </body>
 </html>
