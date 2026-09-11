@@ -55,10 +55,10 @@
             display: flex;
             gap: 8px;
             flex: 1;
-            max-width: 400px;
+            max-width: 350px;
         }
 
-        input[type="text"], input[type="email"] {
+        input[type="text"], input[type="email"], input[type="password"] {
             width: 100%;
             padding: 10px 18px;
             background: rgba(12, 22, 17, 0.9);
@@ -70,7 +70,7 @@
             transition: all 0.3s ease;
         }
 
-        input[type="text"]:focus, input[type="email"]:focus {
+        input:focus {
             border-color: #00ff80;
             box-shadow: 0 0 12px rgba(0, 255, 128, 0.4);
         }
@@ -141,7 +141,7 @@
         .user-section {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             position: relative;
         }
 
@@ -161,7 +161,7 @@
             background: rgba(7, 14, 10, 0.95);
             border: 1px solid rgba(0, 255, 128, 0.4);
             border-radius: 14px;
-            width: 190px;
+            width: 210px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.9);
             z-index: 4000;
             overflow: hidden;
@@ -187,6 +187,30 @@
         .profile-dropdown button:hover {
             background: rgba(0, 255, 128, 0.2);
             color: #00ff80;
+        }
+
+        .notification-bell {
+            cursor: pointer;
+            background: rgba(0, 255, 128, 0.1);
+            border: 1px solid rgba(0, 255, 128, 0.3);
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            font-size: 14px;
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 8px;
+            height: 8px;
+            background: #ff0055;
+            border-radius: 50%;
         }
 
         .container { max-width: 1000px; margin: 25px auto 0 auto; padding: 0 15px; }
@@ -265,11 +289,6 @@
             scroll-behavior: smooth;
         }
 
-        @keyframes editSlideIn {
-            0% { opacity: 0; transform: translateY(20px) scale(0.95); }
-            100% { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
         .lyric-line {
             font-size: 16px;
             font-weight: 700;
@@ -277,7 +296,6 @@
             margin: 16px 0;
             cursor: pointer;
             transition: all 0.3s ease;
-            animation: editSlideIn 0.4s ease forwards;
         }
 
         .lyric-line.active {
@@ -307,8 +325,7 @@
         }
 
         .mini-info { display: flex; align-items: center; gap: 12px; }
-        .mini-icon { font-size: 20px; animation: spin 4s linear infinite; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .mini-icon { font-size: 20px; }
         .mini-title { color: #00ff80; font-size: 13px; font-weight: 700; font-family: 'Orbitron', sans-serif; }
         .mini-sub { color: rgba(255, 255, 255, 0.6); font-size: 11px; }
         .mini-btn {
@@ -329,6 +346,13 @@
             </div>
             
             <div class="user-section">
+                <!-- Notification Bell -->
+                <div class="notification-bell" onclick="openNotifications()" title="Updates & Notifications">
+                    🔔
+                    <div id="notif-dot" class="notification-dot" style="display:none;"></div>
+                </div>
+
+                <!-- APK Button (Hidden if running inside installed App) -->
                 <a id="apk-download-btn" href="/static/PankajLyricsPlayer.apk" download class="neon-btn apk-btn" style="padding:6px 12px; font-size:10px;">
                     📲 APK
                 </a>
@@ -348,25 +372,28 @@
                     <div id="profile-dropdown" class="profile-dropdown">
                         <div style="padding:10px 15px; font-size:11px; border-bottom:1px solid rgba(0,255,128,0.2); color:#aaa; word-break:break-all;">{{ user }}</div>
                         <button onclick="openSettings()">⚙️ Settings</button>
-                        <button onclick="logoutUser()" style="color:#ff4d4d;">🚪 Logout</button>
+                        <button onclick="logoutUser()" style="color:#ffcc00;">🚪 Logout</button>
+                        <button onclick="deleteAccount()" style="color:#ff4d4d;">🗑️ Delete My Account</button>
                     </div>
                 {% else %}
                     <button class="neon-btn" onclick="openAuthModal('login')" style="padding:6px 14px; font-size:10px;">LOGIN</button>
-                    <button class="neon-btn" onclick="openAuthModal('register')" style="padding:6px 14px; font-size:10px; background:linear-gradient(135deg, #00e5ff 0%, #0088cc 100%);">REGISTER</button>
                 {% endif %}
             </div>
         </div>
     </div>
 
     <!-- Login / Register Modal -->
-    <div id="auth-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:3000; justify-content:center; align-items:center;">
+    <div id="auth-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:3000; justify-content:center; align-items:center;">
         <div class="glass-card" style="width:90%; max-width:400px; text-align:center;">
             <h3 id="auth-title" style="color:#00ff80; font-family:'Orbitron'; margin-bottom:15px;">LOGIN TO PLP</h3>
-            <input type="email" id="auth-email" placeholder="Enter your email..." style="margin-bottom:15px;">
-            <div style="display:flex; gap:10px; justify-content:center;">
+            <input type="email" id="auth-email" placeholder="Enter your email..." style="margin-bottom:12px;">
+            <input type="password" id="auth-password" placeholder="Enter password (Owner/User)..." style="margin-bottom:15px; display:none;">
+            <div id="auth-error" style="color:#ff4d4d; font-size:12px; margin-bottom:10px; display:none;">User not found! Please register first.</div>
+            <div style="display:flex; gap:10px; justify-content:center; margin-bottom:12px;">
                 <button class="neon-btn" onclick="submitAuth()">SUBMIT</button>
                 <button class="neon-btn" onclick="closeAuthModal()" style="background:rgba(255,255,255,0.1); color:#fff;">CANCEL</button>
             </div>
+            <p id="auth-toggle-text" style="font-size:12px; color:#aaa; cursor:pointer;" onclick="toggleAuthMode()">Don't have an account? <span style="color:#00ff80; text-decoration:underline;">Register here</span></p>
         </div>
     </div>
 
@@ -377,6 +404,25 @@
             <p style="font-size:13px; color:#aaa; margin-bottom:10px;">Logged in as: <span style="color:#fff;">{{ user }}</span></p>
             <p style="font-size:13px; color:#aaa; margin-bottom:20px;">Current Role: <span style="color:#00ff80; text-transform:uppercase; font-weight:bold;">{{ role }}</span></p>
             <button class="neon-btn" onclick="closeSettings()">CLOSE</button>
+        </div>
+    </div>
+
+    <!-- Notification Modal -->
+    <div id="notification-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:3000; justify-content:center; align-items:center;">
+        <div class="glass-card" style="width:90%; max-width:450px; text-align:center;">
+            <h3 style="color:#00ff80; font-family:'Orbitron'; margin-bottom:15px;">📢 LATEST UPDATES</h3>
+            <div id="notif-content" style="font-size:13px; color:#ddd; margin-bottom:20px; max-height:250px; overflow-y:auto; text-align:left; padding:10px; background:rgba(0,0,0,0.4); border-radius:10px;">
+                <p>✨ Welcome to Pankaj Lyrics Player! Enjoy the latest synced tracks and high-quality player experience.</p>
+            </div>
+            <!-- Owner Broadcast Control (Visible only to owner) -->
+            {% if role == 'owner' %}
+            <div style="border-top:1px solid rgba(0,255,128,0.2); padding-top:15px; margin-bottom:15px;">
+                <input type="text" id="broadcast-text" placeholder="Type notification text..." style="margin-bottom:8px;">
+                <input type="text" id="broadcast-img" placeholder="Image URL (optional)..." style="margin-bottom:10px;">
+                <button class="neon-btn" onclick="sendBroadcast()" style="font-size:10px; background:linear-gradient(135deg, #ff0055 0%, #ff5500 100%); color:#fff;">SEND UPDATE TO USERS</button>
+            </div>
+            {% endif %}
+            <button class="neon-btn" onclick="closeNotifications()">CLOSE</button>
         </div>
     </div>
 
@@ -432,22 +478,40 @@
         let currentLyrics = [];
         let currentSongKey = '';
         let userRole = "{{ role }}";
+        let isRegisterMode = false;
         
         let audioCtx, analyser, dataArray, source, canvasCtx, visualizerId;
         let isSourceConnected = false;
 
-        fetch('/api/songs')
-            .then(res => res.json())
-            .then(data => {
-                songsData = data;
-                let listHtml = '';
-                for(let key in songsData) {
-                    let song = songsData[key];
-                    let lockMark = (song.is_premium && userRole === 'normal') ? '🔒 (VIP)' : '🎵';
-                    listHtml += `<span class="song-item" onclick="playSong('${key}')">${lockMark} ${song.display_name}</span>`;
-                }
-                document.getElementById('tracks-list').innerHTML = listHtml;
-            });
+        // Hide APK download button if opened inside a standalone installed PWA/App
+        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+            let apkBtn = document.getElementById('apk-download-btn');
+            if(apkBtn) apkBtn.style.display = 'none';
+        }
+
+        // Force Login modal on load if user is not logged in
+        window.onload = function() {
+            let loggedInUser = "{{ user }}";
+            if (!loggedInUser) {
+                openAuthModal('login');
+            }
+            loadSongs();
+        };
+
+        function loadSongs() {
+            fetch('/api/songs')
+                .then(res => res.json())
+                .then(data => {
+                    songsData = data;
+                    let listHtml = '';
+                    for(let key in songsData) {
+                        let song = songsData[key];
+                        let lockMark = (song.is_premium && userRole === 'normal') ? '🔒 (VIP)' : '🎵';
+                        listHtml += `<span class="song-item" onclick="playSong('${key}')">${lockMark} ${song.display_name}</span>`;
+                    }
+                    document.getElementById('tracks-list').innerHTML = listHtml;
+                });
+        }
 
         function toggleProfileMenu() {
             let menu = document.getElementById('profile-dropdown');
@@ -463,28 +527,66 @@
 
         function openAuthModal(type) {
             document.getElementById('auth-modal').style.display = 'flex';
-            document.getElementById('auth-title').innerText = type === 'register' ? 'REGISTER TO PLP' : 'LOGIN TO PLP';
+            isRegisterMode = (type === 'register');
+            updateAuthUI();
         }
 
         function closeAuthModal() {
+            let loggedInUser = "{{ user }}";
+            if (!loggedInUser) {
+                alert("Please login first to use the player!");
+                return;
+            }
             document.getElementById('auth-modal').style.display = 'none';
+        }
+
+        function toggleAuthMode() {
+            isRegisterMode = !isRegisterMode;
+            updateAuthUI();
+        }
+
+        function updateAuthUI() {
+            let title = document.getElementById('auth-title');
+            let toggleText = document.getElementById('auth-toggle-text');
+            let passInput = document.getElementById('auth-password');
+            
+            if (isRegisterMode) {
+                title.innerText = "REGISTER TO PLP";
+                toggleText.innerHTML = 'Already have an account? <span style="color:#00ff80; text-decoration:underline;">Login here</span>';
+                passInput.style.display = 'block';
+            } else {
+                title.innerText = "LOGIN TO PLP";
+                toggleText.innerHTML = "Don't have an account? <span style='color:#00ff80; text-decoration:underline;'>Register here</span>";
+                passInput.style.display = 'block'; // Password needed for owner or verification
+            }
+            document.getElementById('auth-error').style.display = 'none';
         }
 
         function submitAuth() {
             const email = document.getElementById('auth-email').value.trim();
-            if(!email) return alert("Please enter an email!");
-            
-            fetch('/api/login', {
+            const password = document.getElementById('auth-password').value.trim();
+            const errBox = document.getElementById('auth-error');
+
+            if(!email) {
+                errBox.innerText = "Please enter an email!";
+                errBox.style.display = 'block';
+                return;
+            }
+
+            let endpoint = isRegisterMode ? '/api/register' : '/api/login';
+
+            fetch(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: email })
+                body: JSON.stringify({ email: email, password: password })
             })
             .then(res => res.json())
             .then(data => {
                 if(data.status === 'success') {
                     location.reload();
                 } else {
-                    alert("Authentication failed!");
+                    errBox.innerText = data.message || "User not found or incorrect password!";
+                    errBox.style.display = 'block';
                 }
             });
         }
@@ -492,6 +594,13 @@
         function logoutUser() {
             fetch('/api/logout', { method: 'POST' })
             .then(() => location.reload());
+        }
+
+        function deleteAccount() {
+            if(confirm("Are you sure you want to delete your account?")) {
+                fetch('/api/delete-account', { method: 'POST' })
+                .then(() => location.reload());
+            }
         }
 
         function openSettings() {
@@ -503,64 +612,26 @@
             document.getElementById('settings-modal').style.display = 'none';
         }
 
-        function initVisualizer() {
-            if (audioCtx) {
-                if (audioCtx.state === 'suspended') {
-                    audioCtx.resume();
-                }
-                return;
-            }
-            try {
-                const audioEle = document.getElementById('audio-player');
-                const canvas = document.getElementById('visualizer');
-                if(!canvas) return;
-                
-                canvas.width = canvas.offsetWidth;
-                canvas.height = canvas.offsetHeight;
-                canvasCtx = canvas.getContext('2d');
-                
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioCtx.createAnalyser();
-                
-                if (!isSourceConnected) {
-                    source = audioCtx.createMediaElementSource(audioEle);
-                    source.connect(analyser);
-                    analyser.connect(audioCtx.destination);
-                    isSourceConnected = true;
-                }
-                
-                analyser.fftSize = 64;
-                const bufferLength = analyser.frequencyBinCount;
-                dataArray = new Uint8Array(bufferLength);
-                
-                drawVisualizer();
-            } catch (e) {
-                console.log("Visualizer error: ", e);
-            }
+        function openNotifications() {
+            document.getElementById('notification-modal').style.display = 'flex';
+            document.getElementById('notif-dot').style.display = 'none';
         }
 
-        function drawVisualizer() {
-            visualizerId = requestAnimationFrame(drawVisualizer);
-            if (!analyser) return;
-            
-            analyser.getByteFrequencyData(dataArray);
-            
-            const canvas = document.getElementById('visualizer');
-            canvasCtx.fillStyle = 'rgba(3, 7, 5, 0.8)';
-            canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            let barWidth = (canvas.width / dataArray.length) * 1.8;
-            let barHeight;
-            let x = 0;
-            
-            for (let i = 0; i < dataArray.length; i++) {
-                barHeight = (dataArray[i] / 255) * canvas.height;
-                
-                canvasCtx.fillStyle = '#00ff80';
-                canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
-                
-                x += barWidth + 3;
-            }
+        function closeNotifications() {
+            document.getElementById('notification-modal').style.display = 'none';
+        }
+
+        function sendBroadcast() {
+            let text = document.getElementById('broadcast-text').value;
+            let img = document.getElementById('broadcast-img').value;
+            fetch('/api/broadcast', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: text, image: img })
+            }).then(res => res.json()).then(data => {
+                alert("Notification sent successfully!");
+                closeNotifications();
+            });
         }
 
         function playSong(key) {
@@ -664,13 +735,6 @@
             document.getElementById('screen-main').style.display = 'none';
             document.getElementById('screen-player').style.display = 'block';
             document.getElementById('mini-player').style.display = 'none';
-            setTimeout(() => {
-                let canvas = document.getElementById('visualizer');
-                if(canvas) {
-                    canvas.width = canvas.offsetWidth;
-                    canvas.height = canvas.offsetHeight;
-                }
-            }, 200);
         }
     </script>
 </body>
