@@ -413,7 +413,7 @@
             </div>
 
             <p id="forgot-pass-text" style="font-size:11px; color:#00ff80; cursor:pointer; margin-bottom:8px; text-decoration:underline;" onclick="showForgotPassword()">Forgot Password?</p>
-            <p id="auth-toggle-text" style="font-size:12px; color:#aaa; cursor:pointer;" onclick="toggleAuthMode()">Don't have an account? <span style="color:#00ff80; text-decoration:underline;">Register here</span></p>
+            <p id="auth-toggle-text" style="font-size:12px; color:#aaa; cursor:pointer;">Don't have an account? <span style="color:#00ff80; text-decoration:underline;" onclick="toggleAuthMode()">Register here</span></p>
         </div>
     </div>
 
@@ -715,7 +715,7 @@
                 document.getElementById('otp-input').style.display = 'none';
                 document.getElementById('auth-submit-btn').innerText = "GET OTP";
                 document.getElementById('auth-back-btn').style.display = 'none';
-            } else if (isForgotPasswordMode && forgotStep === 2) {
+            } else if (isForgotPasswordMode) {
                 cancelForgotPassword();
             }
         }
