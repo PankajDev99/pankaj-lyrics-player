@@ -389,7 +389,14 @@
             <h3 id="auth-title" style="color:#00ff80; font-family:'Orbitron'; margin-bottom:15px;">LOGIN TO PLP</h3>
             
             <input type="text" id="auth-name" placeholder="Enter full name..." style="margin-bottom:12px; display:none;">
-            <input type="tel" id="auth-phone" placeholder="Enter mobile number..." style="margin-bottom:12px; display:none;">
+            
+            <div id="phone-group" style="position:relative; margin-bottom:12px; display:none;">
+                <div style="position:absolute; left:15px; top:11px; font-size:14px; display:flex; align-items:center; gap:4px; color:#00ff80; pointer-events:none;">
+                    🇮🇳 <span>+91</span>
+                </div>
+                <input type="tel" id="auth-phone" placeholder="Mobile number..." style="padding-left: 65px;">
+            </div>
+
             <input type="email" id="auth-email" placeholder="Enter email..." style="margin-bottom:12px;">
             
             <div id="password-group" style="position:relative; margin-bottom:12px;">
@@ -625,7 +632,7 @@
             forgotStep = 1;
             document.getElementById('auth-title').innerText = "FORGOT PASSWORD";
             document.getElementById('auth-name').style.display = 'none';
-            document.getElementById('auth-phone').style.display = 'none';
+            document.getElementById('phone-group').style.display = 'none';
             document.getElementById('password-group').style.display = 'none';
             document.getElementById('confirm-password-group').style.display = 'none';
             document.getElementById('otp-input').style.display = 'none';
@@ -643,7 +650,7 @@
             registerStep = 1;
             document.getElementById('auth-title').innerText = "LOGIN TO PLP";
             document.getElementById('auth-name').style.display = 'none';
-            document.getElementById('auth-phone').style.display = 'none';
+            document.getElementById('phone-group').style.display = 'none';
             document.getElementById('password-group').style.display = 'block';
             document.getElementById('confirm-password-group').style.display = 'none';
             document.getElementById('otp-input').style.display = 'none';
@@ -671,7 +678,7 @@
             let title = document.getElementById('auth-title');
             let toggleText = document.getElementById('auth-toggle-text');
             let nameInput = document.getElementById('auth-name');
-            let phoneInput = document.getElementById('auth-phone');
+            let phoneGroup = document.getElementById('phone-group');
             let passwordGroup = document.getElementById('password-group');
             let confirmPasswordGroup = document.getElementById('confirm-password-group');
             let otpInput = document.getElementById('otp-input');
@@ -690,7 +697,7 @@
             if (isRegisterMode) {
                 title.innerText = "REGISTER TO PLP";
                 nameInput.style.display = 'block';
-                phoneInput.style.display = 'block';
+                phoneGroup.style.display = 'block';
                 confirmPasswordGroup.style.display = 'block';
                 toggleText.innerHTML = 'Already have an account? <span style="color:#00ff80; text-decoration:underline;" onclick="toggleAuthMode()">Login here</span>';
                 forgotText.style.display = 'none';
@@ -698,7 +705,7 @@
             } else {
                 title.innerText = "LOGIN TO PLP";
                 nameInput.style.display = 'none';
-                phoneInput.style.display = 'none';
+                phoneGroup.style.display = 'none';
                 confirmPasswordGroup.style.display = 'none';
                 toggleText.innerHTML = "Don't have an account? <span style='color:#00ff80; text-decoration:underline;' onclick='toggleAuthMode()'>Register here</span>";
             }
@@ -709,7 +716,7 @@
             if (isRegisterMode && registerStep === 2) {
                 registerStep = 1;
                 document.getElementById('auth-name').style.display = 'block';
-                document.getElementById('auth-phone').style.display = 'block';
+                document.getElementById('phone-group').style.display = 'block';
                 document.getElementById('password-group').style.display = 'block';
                 document.getElementById('confirm-password-group').style.display = 'block';
                 document.getElementById('otp-input').style.display = 'none';
@@ -811,7 +818,7 @@
                             registerStep = 2;
                             document.getElementById('otp-input').style.display = 'block';
                             document.getElementById('auth-name').style.display = 'none';
-                            document.getElementById('auth-phone').style.display = 'none';
+                            document.getElementById('phone-group').style.display = 'none';
                             document.getElementById('password-group').style.display = 'none';
                             document.getElementById('confirm-password-group').style.display = 'none';
                             document.getElementById('auth-submit-btn').innerText = "VERIFY & REGISTER";
