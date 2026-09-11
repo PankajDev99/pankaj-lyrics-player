@@ -16,7 +16,7 @@ VIP_USERS = ["pankajkhatik0999@gmail.com", "vipuser@gmail.com"]
 
 # User database store karne ke liye (Email -> {"password": "...", "role": "..."})
 REGISTERED_USERS = {
-    "pankajkhatik0999@gmail.com": {"password": "adminpassword", "role": "owner"}
+    "pankajkhatik0999@gmail.com": {"password": "Pankaj khatik0999", "role": "owner"}
 }
 
 # Temporary OTP storage (Email -> OTP)
