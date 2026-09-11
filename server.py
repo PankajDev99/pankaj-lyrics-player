@@ -74,22 +74,7 @@ SONGS_DATABASE = {
             {"time": 38.0, "text": "Dil jaan sab kuch deju tanne main.."},
             {"time": 41.0, "text": "Dil aale badala mein pyar bhara se.."},
             {"time": 43.0, "text": "Aaja pyar aali boonda ke mah...."},
-            {"time": 44.0, "text": "Bheju tanne main...."},
-            {"time": 46.0, "text": ".........."},
-            {"time": 57.0, "text": "Batue se muh jissi pote ki se bahu..."},
-            {"time": 61.0, "text": "Dekh dekh chaa chade dadi kare nyuh.."},
-            {"time": 64.0, "text": "Ladiye na kade meri baat maniye...."},
-            {"time": 66.0, "text": "Meri maa bhi tane rakhegi re betiya ki jyun.."},
-            {"time": 69.0, "text": "Nyun ki re nyun jamma laage tu pari..."},
-            {"time": 72.0, "text": "Sar te re pair jamaa rass ki bhari.."},
-            {"time": 75.0, "text": "Ndee ndee kundu bass naam ka hi ndee.."},
-            {"time": 77.0, "text": "Naa re byah ke tanne delhi te yo..."},
-            {"time": 78.0, "text": "Laijega surrey..."},
-            {"time": 80.5, "text": "Phoolan aale garden leju tanne main.."},
-            {"time": 83.0, "text": "Dil jaan sab kuch deju tanne main.."},
-            {"time": 86.0, "text": "Dil aale badala mein pyar bhara se..."},
-            {"time": 89.0, "text": "Aaja pyar aali boonda ke mah..."},
-            {"time": 90.0, "text": "Bheju tanne main ...."}
+            {"time": 44.0, "text": "Bheju tanne main ...."}
         ]
     },
     "The last talk": {
@@ -212,11 +197,10 @@ def register_verify_otp():
     
     if email in OTP_STORAGE and OTP_STORAGE[email] == otp:
         reg_info = TEMP_REG_STORAGE.get(email, {})
-        # Note: In a complete flow, pass/store password securely. For simplicity using a default or storing it temporarily if needed.
         role = 'owner' if email == "pankajkhatik0999@gmail.com" else ('vip' if email in VIP_USERS else 'normal')
         
         REGISTERED_USERS[email] = {
-            "password": "password123", # or capture from temporary state if extended
+            "password": "password123", 
             "role": role,
             "name": reg_info.get("name", ""),
             "phone": reg_info.get("phone", "")
@@ -225,7 +209,6 @@ def register_verify_otp():
         session['user'] = email
         session['role'] = role
         
-        # Clean up
         del OTP_STORAGE[email]
         if email in TEMP_REG_STORAGE:
             del TEMP_REG_STORAGE[email]

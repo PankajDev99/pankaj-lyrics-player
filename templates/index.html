@@ -408,6 +408,7 @@
             <div id="auth-error" style="color:#ff4d4d; font-size:12px; margin-bottom:10px; display:none;"></div>
             
             <div style="display:flex; gap:10px; justify-content:center; margin-bottom:12px;">
+                <button id="auth-back-btn" class="neon-btn" style="display:none; background:rgba(255,255,255,0.1); color:#fff;" onclick="goBackAuthStep()">BACK</button>
                 <button class="neon-btn" id="auth-submit-btn" onclick="submitAuth()">SUBMIT</button>
             </div>
 
@@ -630,6 +631,7 @@
             document.getElementById('otp-input').style.display = 'none';
             document.getElementById('new-password-input').style.display = 'none';
             document.getElementById('auth-submit-btn').innerText = "SEND OTP";
+            document.getElementById('auth-back-btn').style.display = 'inline-flex';
             document.getElementById('forgot-pass-text').style.display = 'none';
             document.getElementById('auth-toggle-text').innerHTML = 'Remembered your password? <span style="color:#00ff80; text-decoration:underline;" onclick="cancelForgotPassword()">Login here</span>';
             document.getElementById('auth-error').style.display = 'none';
@@ -647,6 +649,7 @@
             document.getElementById('otp-input').style.display = 'none';
             document.getElementById('new-password-input').style.display = 'none';
             document.getElementById('auth-submit-btn').innerText = "SUBMIT";
+            document.getElementById('auth-back-btn').style.display = 'none';
             document.getElementById('forgot-pass-text').style.display = 'block';
             document.getElementById('auth-toggle-text').innerHTML = "Don't have an account? <span style='color:#00ff80; text-decoration:underline;' onclick='toggleAuthMode()'>Register here</span>";
             document.getElementById('auth-error').style.display = 'none';
@@ -675,12 +678,14 @@
             let newPassInput = document.getElementById('new-password-input');
             let forgotText = document.getElementById('forgot-pass-text');
             let submitBtn = document.getElementById('auth-submit-btn');
+            let backBtn = document.getElementById('auth-back-btn');
 
             otpInput.style.display = 'none';
             newPassInput.style.display = 'none';
             forgotText.style.display = 'block';
             submitBtn.innerText = "SUBMIT";
             passwordGroup.style.display = 'block';
+            backBtn.style.display = 'none';
             
             if (isRegisterMode) {
                 title.innerText = "REGISTER TO PLP";
@@ -698,6 +703,21 @@
                 toggleText.innerHTML = "Don't have an account? <span style='color:#00ff80; text-decoration:underline;' onclick='toggleAuthMode()'>Register here</span>";
             }
             document.getElementById('auth-error').style.display = 'none';
+        }
+
+        function goBackAuthStep() {
+            if (isRegisterMode && registerStep === 2) {
+                registerStep = 1;
+                document.getElementById('auth-name').style.display = 'block';
+                document.getElementById('auth-phone').style.display = 'block';
+                document.getElementById('password-group').style.display = 'block';
+                document.getElementById('confirm-password-group').style.display = 'block';
+                document.getElementById('otp-input').style.display = 'none';
+                document.getElementById('auth-submit-btn').innerText = "GET OTP";
+                document.getElementById('auth-back-btn').style.display = 'none';
+            } else if (isForgotPasswordMode && forgotStep === 2) {
+                cancelForgotPassword();
+            }
         }
 
         function submitAuth() {
@@ -725,6 +745,7 @@
                             document.getElementById('otp-input').style.display = 'block';
                             document.getElementById('new-password-input').style.display = 'block';
                             document.getElementById('auth-submit-btn').innerText = "VERIFY & RESET";
+                            document.getElementById('auth-back-btn').style.display = 'inline-flex';
                             errBox.style.display = 'none';
                         } else {
                             errBox.innerText = data.message || "Email not found!";
@@ -794,6 +815,7 @@
                             document.getElementById('password-group').style.display = 'none';
                             document.getElementById('confirm-password-group').style.display = 'none';
                             document.getElementById('auth-submit-btn').innerText = "VERIFY & REGISTER";
+                            document.getElementById('auth-back-btn').style.display = 'inline-flex';
                             errBox.style.display = 'none';
                         } else {
                             errBox.innerText = data.message || "Failed to send OTP!";
