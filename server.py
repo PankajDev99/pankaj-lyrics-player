@@ -47,7 +47,7 @@ SONGS_DATABASE = {
         "artist": "Lata Mangeshkar",
         "audio_url": "/static/Rose_Garden.mp3",
         "video_url": "/static/Rose_Garden_Video.mp4",
-        "official_url": "https://www.youtube.com/results?search_query=Rose+Garden+song",
+        "official_url": "https://youtu.be/OYf9NlA8AeU?si=UkAN-KuMOWg5vSaz",
         "is_premium": True,
         "lyrics_timed": [
             {"time": 0.0, "text": "Phoolan aale garden leju tanne main..."},
