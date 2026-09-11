@@ -207,10 +207,11 @@
             position: absolute;
             top: 2px;
             right: 2px;
-            width: 8px;
-            height: 8px;
+            width: 9px;
+            height: 9px;
             background: #ff0055;
             border-radius: 50%;
+            box-shadow: 0 0 8px #ff0055;
         }
 
         .container { max-width: 1000px; margin: 25px auto 0 auto; padding: 0 15px; }
@@ -346,13 +347,13 @@
             </div>
             
             <div class="user-section">
-                <!-- Notification Bell -->
+                <!-- Notification Bell with Red Dot -->
                 <div class="notification-bell" onclick="openNotifications()" title="Updates & Notifications">
                     🔔
-                    <div id="notif-dot" class="notification-dot" style="display:none;"></div>
+                    <div id="notif-dot" class="notification-dot"></div>
                 </div>
 
-                <!-- APK Button (Hidden if running inside installed App) -->
+                <!-- APK Button -->
                 <a id="apk-download-btn" href="/static/PankajLyricsPlayer.apk" download class="neon-btn apk-btn" style="padding:6px 12px; font-size:10px;">
                     📲 APK
                 </a>
@@ -483,19 +484,19 @@
         let audioCtx, analyser, dataArray, source, canvasCtx, visualizerId;
         let isSourceConnected = false;
 
-        // Hide APK download button if opened inside a standalone installed PWA/App
+        // Hide APK download button if opened inside installed PWA/App
         if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
             let apkBtn = document.getElementById('apk-download-btn');
             if(apkBtn) apkBtn.style.display = 'none';
         }
 
-        // Force Login modal on load if user is not logged in
         window.onload = function() {
             let loggedInUser = "{{ user }}";
             if (!loggedInUser) {
                 openAuthModal('login');
             }
             loadSongs();
+            checkUnreadNotifications();
         };
 
         function loadSongs() {
@@ -557,7 +558,7 @@
             } else {
                 title.innerText = "LOGIN TO PLP";
                 toggleText.innerHTML = "Don't have an account? <span style='color:#00ff80; text-decoration:underline;'>Register here</span>";
-                passInput.style.display = 'block'; // Password needed for owner or verification
+                passInput.style.display = 'block';
             }
             document.getElementById('auth-error').style.display = 'none';
         }
@@ -612,8 +613,22 @@
             document.getElementById('settings-modal').style.display = 'none';
         }
 
+        // Notification & Red Dot Logic
+        function checkUnreadNotifications() {
+            let lastReadTime = localStorage.getItem('plp_last_read') || 0;
+            // Simulated check: if there is any update or if unread flag exists
+            let hasUnread = localStorage.getItem('plp_has_unread') === 'true';
+            if (hasUnread) {
+                document.getElementById('notif-dot').style.display = 'block';
+            } else {
+                document.getElementById('notif-dot').style.display = 'none';
+            }
+        }
+
         function openNotifications() {
             document.getElementById('notification-modal').style.display = 'flex';
+            // Mark as read (Remove Red Dot)
+            localStorage.setItem('plp_has_unread', 'false');
             document.getElementById('notif-dot').style.display = 'none';
         }
 
@@ -624,12 +639,15 @@
         function sendBroadcast() {
             let text = document.getElementById('broadcast-text').value;
             let img = document.getElementById('broadcast-img').value;
+            if(!text) return alert("Please type some message!");
+            
             fetch('/api/broadcast', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text: text, image: img })
             }).then(res => res.json()).then(data => {
                 alert("Notification sent successfully!");
+                localStorage.setItem('plp_has_unread', 'true'); // Trigger red dot for users
                 closeNotifications();
             });
         }
@@ -667,10 +685,7 @@
             currentLyrics = song.lyrics_timed;
             renderLyrics();
 
-            audio.play().then(() => {
-                initVisualizer();
-            }).catch(() => {});
-            
+            audio.play().then(() => {}).catch(() => {});
             audio.ontimeupdate = () => syncLyrics(audio.currentTime);
         }
 
@@ -689,8 +704,9 @@
         function syncLyrics(currentTime) {
             const lines = document.querySelectorAll('.lyric-line');
             let activeIndex = -1;
+            // Slightly adjusted check to keep lyrics perfectly matched
             currentLyrics.forEach((line, index) => {
-                if (Number(line.time) <= currentTime) activeIndex = index;
+                if (Number(line.time) <= (currentTime + 0.5)) activeIndex = index;
             });
             lines.forEach((line, index) => {
                 line.classList.toggle('active', index === activeIndex);
@@ -704,7 +720,6 @@
             let audio = document.getElementById('audio-player');
             if (audio.paused) {
                 audio.play();
-                if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
             } else {
                 audio.pause();
             }
