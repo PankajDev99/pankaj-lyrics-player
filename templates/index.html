@@ -715,12 +715,12 @@
             newPassInput.style.display = 'none';
             forgotText.style.display = 'block';
             submitBtn.innerText = "SUBMIT";
-            passwordGroup.style.display = 'block';
             
             if (isRegisterMode) {
                 title.innerText = "REGISTER TO PLP";
                 nameInput.style.display = 'block';
                 phoneInput.style.display = 'block';
+                passwordGroup.style.display = 'block';
                 confirmPasswordGroup.style.display = 'block';
                 toggleText.innerHTML = 'Already have an account? <span style="color:#00ff80; text-decoration:underline;" onclick="toggleAuthMode()">Login here</span>';
                 forgotText.style.display = 'none';
@@ -730,6 +730,7 @@
                 title.innerText = "LOGIN TO PLP";
                 nameInput.style.display = 'none';
                 phoneInput.style.display = 'none';
+                passwordGroup.style.display = 'block';
                 confirmPasswordGroup.style.display = 'none';
                 toggleText.innerHTML = "Don't have an account? <span style='color:#00ff80; text-decoration:underline;' onclick='toggleAuthMode()'>Register here</span>";
                 backBtn.style.display = 'none';
@@ -741,7 +742,7 @@
             if (isForgotPasswordMode) {
                 if (forgotStep === 2) {
                     forgotStep = 1;
-                    updateAuthUI();
+                    showForgotPassword();
                 } else {
                     cancelForgotPassword();
                 }
