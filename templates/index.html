@@ -381,20 +381,20 @@
         </div>
     </div>
 
-    <!-- Login / Register Modal -->
+    <!-- Login / Register / Forgot Password Modal -->
     <div id="auth-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:5000; justify-content:center; align-items:center;">
         <div class="glass-card" style="width:90%; max-width:400px; text-align:center;">
             <h3 id="auth-title" style="color:#00ff80; font-family:'Orbitron'; margin-bottom:15px;">LOGIN TO PLP</h3>
             
             <input type="email" id="auth-email" placeholder="Enter your email..." style="margin-bottom:12px;">
             
-            <!-- Password field with Eye Toggle -->
-            <div style="position:relative; margin-bottom:12px;">
+            <!-- Password field (Login/Register ke liye) -->
+            <div id="password-group" style="position:relative; margin-bottom:12px;">
                 <input type="password" id="auth-password" placeholder="Enter password..." style="padding-right: 40px;">
                 <span id="eye-btn" onclick="togglePasswordVisibility()" style="position:absolute; right:15px; top:12px; cursor:pointer; font-size:16px;">👁️‍🗨️</span>
             </div>
 
-            <!-- OTP & New Password fields (Initially Hidden) -->
+            <!-- OTP & New Password fields (Initially Hidden for Forgot Password Step 2) -->
             <input type="text" id="otp-input" placeholder="Enter 6-digit OTP..." style="margin-bottom:12px; display:none;">
             <input type="password" id="new-password-input" placeholder="Enter new password..." style="margin-bottom:12px; display:none;">
 
@@ -493,6 +493,7 @@
         let userRole = "{{ role }}";
         let isRegisterMode = false;
         let isForgotPasswordMode = false;
+        let forgotStep = 1; // 1: Send OTP, 2: Verify & Reset
 
         if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
             let apkBtn = document.getElementById('apk-download-btn');
@@ -539,22 +540,25 @@
             document.getElementById('auth-modal').style.display = 'flex';
             isRegisterMode = (type === 'register');
             isForgotPasswordMode = false;
+            forgotStep = 1;
             updateAuthUI();
         }
 
         function toggleAuthMode() {
             isRegisterMode = !isRegisterMode;
             isForgotPasswordMode = false;
+            forgotStep = 1;
             updateAuthUI();
         }
 
         function showForgotPassword() {
             isForgotPasswordMode = true;
-            document.getElementById('auth-title').innerText = "RESET PASSWORD";
-            document.getElementById('auth-password').style.display = 'none';
-            document.getElementById('otp-input').style.display = 'block';
-            document.getElementById('new-password-input').style.display = 'block';
-            document.getElementById('auth-submit-btn').innerText = "SEND OTP / VERIFY";
+            forgotStep = 1;
+            document.getElementById('auth-title').innerText = "FORGOT PASSWORD";
+            document.getElementById('password-group').style.display = 'none';
+            document.getElementById('otp-input').style.display = 'none';
+            document.getElementById('new-password-input').style.display = 'none';
+            document.getElementById('auth-submit-btn').innerText = "SEND OTP";
             document.getElementById('forgot-pass-text').style.display = 'none';
             document.getElementById('auth-toggle-text').innerHTML = 'Remembered your password? <span style="color:#00ff80; text-decoration:underline;" onclick="cancelForgotPassword()">Login here</span>';
             document.getElementById('auth-error').style.display = 'none';
@@ -562,8 +566,9 @@
 
         function cancelForgotPassword() {
             isForgotPasswordMode = false;
+            forgotStep = 1;
             document.getElementById('auth-title').innerText = "LOGIN TO PLP";
-            document.getElementById('auth-password').style.display = 'block';
+            document.getElementById('password-group').style.display = 'block';
             document.getElementById('otp-input').style.display = 'none';
             document.getElementById('new-password-input').style.display = 'none';
             document.getElementById('auth-submit-btn').innerText = "SUBMIT";
@@ -587,7 +592,7 @@
         function updateAuthUI() {
             let title = document.getElementById('auth-title');
             let toggleText = document.getElementById('auth-toggle-text');
-            let passInput = document.getElementById('auth-password');
+            let passwordGroup = document.getElementById('password-group');
             let otpInput = document.getElementById('otp-input');
             let newPassInput = document.getElementById('new-password-input');
             let forgotText = document.getElementById('forgot-pass-text');
@@ -597,7 +602,7 @@
             newPassInput.style.display = 'none';
             forgotText.style.display = 'block';
             submitBtn.innerText = "SUBMIT";
-            passInput.style.display = 'block';
+            passwordGroup.style.display = 'block';
             
             if (isRegisterMode) {
                 title.innerText = "REGISTER TO PLP";
@@ -612,7 +617,6 @@
 
         function submitAuth() {
             const email = document.getElementById('auth-email').value.trim();
-            const password = document.getElementById('auth-password').value.trim();
             const errBox = document.getElementById('auth-error');
 
             if(!email || !email.includes('@')) {
@@ -622,10 +626,58 @@
             }
 
             if (isForgotPasswordMode) {
-                alert("Password reset functionality initialized.");
+                if (forgotStep === 1) {
+                    // Step 1: Request OTP
+                    fetch('/api/forgot-password', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: email })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if(data.status === 'success') {
+                            alert("6-digit OTP sent successfully to your email!");
+                            forgotStep = 2;
+                            document.getElementById('otp-input').style.display = 'block';
+                            document.getElementById('new-password-input').style.display = 'block';
+                            document.getElementById('auth-submit-btn').innerText = "VERIFY & RESET";
+                            errBox.style.display = 'none';
+                        } else {
+                            errBox.innerText = data.message || "Email not found!";
+                            errBox.style.display = 'block';
+                        }
+                    });
+                } else {
+                    // Step 2: Verify OTP & Save New Password
+                    const otp = document.getElementById('otp-input').value.trim();
+                    const newPassword = document.getElementById('new-password-input').value.trim();
+
+                    if(!otp || !newPassword) {
+                        errBox.innerText = "Please enter OTP and new password!";
+                        errBox.style.display = 'block';
+                        return;
+                    }
+
+                    fetch('/api/verify-otp', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: email, otp: otp, new_password: newPassword })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if(data.status === 'success') {
+                            alert("Password updated successfully! Please login with your new password.");
+                            cancelForgotPassword();
+                        } else {
+                            errBox.innerText = data.message || "Wrong OTP entered!";
+                            errBox.style.display = 'block';
+                        }
+                    });
+                }
                 return;
             }
 
+            const password = document.getElementById('auth-password').value.trim();
             let endpoint = isRegisterMode ? '/api/register' : '/api/login';
 
             fetch(endpoint, {
