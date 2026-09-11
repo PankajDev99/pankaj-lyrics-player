@@ -92,7 +92,7 @@ SONGS_DATABASE = {
         "artist": "The Singh",
         "audio_url": "/static/Tha Last Talk.mp3",
         "video_url": "/static/The_Last_Talk_Video.mp4",
-        "official_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "official_url": "https://youtu.be/Tvo8dTFopIA?si=VWNfWX8FA0CtkjZR",
         "is_premium": False,
             "lyrics_timed": [
     {"time": 0.0, "text": "......."},
