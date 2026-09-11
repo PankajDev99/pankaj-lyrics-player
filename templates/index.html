@@ -504,9 +504,26 @@
 
         let audioCtx, analyser, dataArray, sourceNode;
 
+        // Hide APK install button if app is already installed
         if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
             let apkBtn = document.getElementById('apk-download-btn');
             if(apkBtn) apkBtn.style.display = 'none';
+        }
+
+        // Register Service Worker and Listen for Updates
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').then(reg => {
+                reg.addEventListener('updatefound', () => {
+                    const newWorker = reg.installing;
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            if (confirm("App ka naya update aaya hai! Kya abhi refresh karein?")) {
+                                window.location.reload();
+                            }
+                        }
+                    });
+                });
+            });
         }
 
         window.onload = function() {
