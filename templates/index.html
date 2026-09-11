@@ -388,13 +388,11 @@
             
             <input type="email" id="auth-email" placeholder="Enter your email..." style="margin-bottom:12px;">
             
-            <!-- Password field (Login/Register ke liye) -->
             <div id="password-group" style="position:relative; margin-bottom:12px;">
                 <input type="password" id="auth-password" placeholder="Enter password..." style="padding-right: 40px;">
                 <span id="eye-btn" onclick="togglePasswordVisibility()" style="position:absolute; right:15px; top:12px; cursor:pointer; font-size:16px;">👁️‍🗨️</span>
             </div>
 
-            <!-- OTP & New Password fields (Initially Hidden for Forgot Password Step 2) -->
             <input type="text" id="otp-input" placeholder="Enter 6-digit OTP..." style="margin-bottom:12px; display:none;">
             <input type="password" id="new-password-input" placeholder="Enter new password..." style="margin-bottom:12px; display:none;">
 
@@ -404,7 +402,6 @@
                 <button class="neon-btn" id="auth-submit-btn" onclick="submitAuth()">SUBMIT</button>
             </div>
 
-            <!-- Forgot Password Link -->
             <p id="forgot-pass-text" style="font-size:11px; color:#00ff80; cursor:pointer; margin-bottom:8px; text-decoration:underline;" onclick="showForgotPassword()">Forgot Password?</p>
             
             <p id="auth-toggle-text" style="font-size:12px; color:#aaa; cursor:pointer;" onclick="toggleAuthMode()">Don't have an account? <span style="color:#00ff80; text-decoration:underline;">Register here</span></p>
@@ -493,7 +490,9 @@
         let userRole = "{{ role }}";
         let isRegisterMode = false;
         let isForgotPasswordMode = false;
-        let forgotStep = 1; // 1: Send OTP, 2: Verify & Reset
+        let forgotStep = 1;
+
+        let audioCtx, analyser, dataArray, sourceNode;
 
         if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
             let apkBtn = document.getElementById('apk-download-btn');
@@ -508,6 +507,52 @@
             loadSongs();
             checkUnreadNotifications();
         };
+
+        function setupVisualizer() {
+            let audioEle = document.getElementById('audio-player');
+            let canvas = document.getElementById('visualizer');
+            let canvasCtx = canvas.getContext('2d');
+
+            if (!audioCtx) {
+                try {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    analyser = audioCtx.createAnalyser();
+                    sourceNode = audioCtx.createMediaElementSource(audioEle);
+                    sourceNode.connect(analyser);
+                    analyser.connect(audioCtx.destination);
+                    analyser.fftSize = 64;
+                } catch(e) {
+                    console.log("Audio context error:", e);
+                }
+            }
+
+            if(analyser) {
+                let bufferLength = analyser.frequencyBinCount;
+                dataArray = new Uint8Array(bufferLength);
+
+                function draw() {
+                    requestAnimationFrame(draw);
+                    analyser.getByteFrequencyData(dataArray);
+
+                    canvasCtx.fillStyle = 'rgba(3, 7, 5, 0.8)';
+                    canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    let barWidth = (canvas.width / bufferLength) * 2.5;
+                    let barHeight;
+                    let x = 0;
+
+                    for (let i = 0; i < bufferLength; i++) {
+                        barHeight = dataArray[i] / 2;
+
+                        canvasCtx.fillStyle = '#00ff80';
+                        canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+
+                        x += barWidth + 1;
+                    }
+                }
+                draw();
+            }
+        }
 
         function loadSongs() {
             fetch('/api/songs')
@@ -627,7 +672,6 @@
 
             if (isForgotPasswordMode) {
                 if (forgotStep === 1) {
-                    // Step 1: Request OTP
                     fetch('/api/forgot-password', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -648,7 +692,6 @@
                         }
                     });
                 } else {
-                    // Step 2: Verify OTP & Save New Password
                     const otp = document.getElementById('otp-input').value.trim();
                     const newPassword = document.getElementById('new-password-input').value.trim();
 
@@ -785,7 +828,13 @@
             currentLyrics = song.lyrics_timed;
             renderLyrics();
 
-            audio.play().then(() => {}).catch(() => {});
+            audio.play().then(() => {
+                setupVisualizer();
+                if (audioCtx && audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+            }).catch(() => {});
+            
             audio.ontimeupdate = () => syncLyrics(audio.currentTime);
         }
 
@@ -819,6 +868,9 @@
             let audio = document.getElementById('audio-player');
             if (audio.paused) {
                 audio.play();
+                if (audioCtx && audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
             } else {
                 audio.pause();
             }
