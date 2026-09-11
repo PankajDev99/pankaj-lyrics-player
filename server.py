@@ -4,6 +4,10 @@ import random
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import razorpay
+
+# Razorpay Client Initialization (Apni Live/Test Keys yahan dalein)
+razorpay_client = razorpay.Client(auth=("YOUR_RAZORPAY_KEY", "YOUR_RAZORPAY_SECRET"))
 
 app = Flask(__name__)
 app.secret_key = "pankaj_secret_key_here"
@@ -277,6 +281,29 @@ def broadcast():
 @app.route('/sw.js')
 def service_worker():
     return send_from_directory('static', 'sw.js')
+
+@app.route('/api/create-order', methods=['POST'])
+def create_order():
+    if not session.get('user'):
+        return jsonify({"status": "error", "message": "Please login first!"}), 401
+    
+    # 1 month VIP subscription amount (Jaise ₹99 = 9900 paise)
+    data = { "amount": 9900, "currency": "INR", "payment_capture": 1 }
+    order = razorpay_client.order.create(data=data)
+    return jsonify({"status": "success", "order_id": order['id'], "amount": data['amount']})
+
+@app.route('/api/verify-payment', methods=['POST'])
+def verify_payment():
+    data = request.json
+    user_email = session.get('user')
+    
+    # Payment verification successful hone ke baad user role ko VIP update karein
+    if user_email and user_email in REGISTERED_USERS:
+        REGISTERED_USERS[user_email]["role"] = "vip"
+        session['role'] = "vip"
+        return jsonify({"status": "success", "message": "VIP subscription activated for 1 month!"})
+    
+    return jsonify({"status": "error", "message": "Verification failed!"}), 400
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

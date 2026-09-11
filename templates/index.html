@@ -7,6 +7,7 @@
     <link rel="manifest" href="/static/manifest.json">
     <meta name="theme-color" content="#00ff80">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
@@ -413,7 +414,12 @@
         <div class="glass-card" style="width:90%; max-width:400px; text-align:center;">
             <h3 style="color:#00ff80; font-family:'Orbitron'; margin-bottom:15px;">⚙️ APP SETTINGS</h3>
             <p style="font-size:13px; color:#aaa; margin-bottom:10px;">Logged in as: <span style="color:#fff;">{{ user }}</span></p>
-            <p style="font-size:13px; color:#aaa; margin-bottom:20px;">Current Role: <span style="color:#00ff80; text-transform:uppercase; font-weight:bold;">{{ role }}</span></p>
+            <p style="font-size:13px; color:#aaa; margin-bottom:15px;">Current Role: <span style="color:#00ff80; text-transform:uppercase; font-weight:bold;">{{ role }}</span></p>
+            
+            {% if role == 'normal' %}
+            <button class="neon-btn" onclick="startVipPayment()" style="background:linear-gradient(135deg, #ffd700 0%, #ffaa00 100%); color:#030705; margin-bottom:15px; width:100%;">⭐ GET VIP (₹99)</button>
+            {% endif %}
+
             <button class="neon-btn" onclick="closeSettings()">CLOSE</button>
         </div>
     </div>
@@ -758,6 +764,47 @@
 
         function closeSettings() {
             document.getElementById('settings-modal').style.display = 'none';
+        }
+
+        function startVipPayment() {
+            fetch('/api/create-order', { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.status === 'error') {
+                        alert(data.message);
+                        return;
+                    }
+                    
+                    let options = {
+                        "key": "YOUR_RAZORPAY_KEY", 
+                        "amount": data.amount,
+                        "currency": "INR",
+                        "name": "PLP Player",
+                        "description": "1 Month VIP Subscription",
+                        "order_id": data.order_id,
+                        "handler": function (response){
+                            fetch('/api/verify-payment', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(response)
+                            })
+                            .then(res => res.json())
+                            .then(result => {
+                                if(result.status === 'success') {
+                                    alert("Congratulation! Your VIP subscription is now active.");
+                                    location.reload();
+                                } else {
+                                    alert("Payment verification failed!");
+                                }
+                            });
+                        },
+                        "theme": {
+                            "color": "#00ff80"
+                        }
+                    };
+                    let rzp = new Razorpay(options);
+                    rzp.open();
+                });
         }
 
         function checkUnreadNotifications() {
