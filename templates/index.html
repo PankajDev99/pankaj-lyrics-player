@@ -76,6 +76,42 @@
             box-shadow: 0 0 12px rgba(0, 255, 128, 0.4);
         }
 
+        .phone-input-group {
+            display: flex;
+            align-items: center;
+            background: rgba(12, 22, 17, 0.9);
+            border: 1px solid rgba(0, 255, 128, 0.3);
+            border-radius: 30px;
+            overflow: hidden;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .phone-input-group:focus-within {
+            border-color: #00ff80;
+            box-shadow: 0 0 12px rgba(0, 255, 128, 0.4);
+        }
+
+        .country-code {
+            padding: 10px 14px;
+            background: rgba(0, 255, 128, 0.1);
+            color: #00ff80;
+            font-weight: 600;
+            font-size: 14px;
+            border-right: 1px solid rgba(0, 255, 128, 0.3);
+            white-space: nowrap;
+        }
+
+        .phone-input-group input[type="tel"] {
+            border: none;
+            border-radius: 0;
+            background: transparent;
+        }
+
+        .phone-input-group input[type="tel"]:focus {
+            box-shadow: none;
+        }
+
         .neon-btn {
             background: linear-gradient(135deg, #00ff80 0%, #00b359 100%);
             color: #030705;
@@ -398,7 +434,11 @@
             
             <!-- Registration Extra Fields -->
             <input type="text" id="auth-name" placeholder="Enter your full name..." style="margin-bottom:12px; display:none;">
-            <input type="tel" id="auth-phone" placeholder="Enter mobile number..." style="margin-bottom:12px; display:none;">
+            
+            <div id="phone-group" class="phone-input-group" style="display:none;">
+                <span class="country-code">+91</span>
+                <input type="tel" id="auth-phone" placeholder="Enter mobile number..." maxlength="10">
+            </div>
             
             <input type="email" id="auth-email" placeholder="Enter your email..." style="margin-bottom:12px;">
             
@@ -414,7 +454,7 @@
             </div>
 
             <!-- OTP Input -->
-            <input type="text" id="otp-input" placeholder="Enter 6-digit OTP..." style="margin-bottom:12px; display:none;">
+            <input type="text" id="otp-input" placeholder="Enter 6-digit OTP..." style="margin-bottom:12px; display:none;" maxlength="6">
             <input type="password" id="new-password-input" placeholder="Enter new password..." style="margin-bottom:12px; display:none;">
 
             <div id="auth-error" style="color:#ff4d4d; font-size:12px; margin-bottom:10px; display:none;"></div>
@@ -651,37 +691,18 @@
 
         function showForgotPassword() {
             isForgotPasswordMode = true;
+            isRegisterMode = false;
             forgotStep = 1;
-            document.getElementById('auth-title').innerText = "FORGOT PASSWORD";
-            document.getElementById('auth-back-btn').style.display = 'block';
-            document.getElementById('auth-name').style.display = 'none';
-            document.getElementById('auth-phone').style.display = 'none';
-            document.getElementById('password-group').style.display = 'none';
-            document.getElementById('confirm-password-group').style.display = 'none';
-            document.getElementById('otp-input').style.display = 'none';
-            document.getElementById('new-password-input').style.display = 'none';
-            document.getElementById('auth-submit-btn').innerText = "SEND OTP";
-            document.getElementById('forgot-pass-text').style.display = 'none';
-            document.getElementById('auth-toggle-text').innerHTML = 'Remembered your password? <span style="color:#00ff80; text-decoration:underline;" onclick="cancelForgotPassword()">Login here</span>';
-            document.getElementById('auth-error').style.display = 'none';
+            registerStep = 1;
+            updateAuthUI();
         }
 
         function cancelForgotPassword() {
             isForgotPasswordMode = false;
+            isRegisterMode = false;
             forgotStep = 1;
             registerStep = 1;
-            document.getElementById('auth-title').innerText = "LOGIN TO PLP";
-            document.getElementById('auth-back-btn').style.display = 'none';
-            document.getElementById('auth-name').style.display = 'none';
-            document.getElementById('auth-phone').style.display = 'none';
-            document.getElementById('password-group').style.display = 'block';
-            document.getElementById('confirm-password-group').style.display = 'none';
-            document.getElementById('otp-input').style.display = 'none';
-            document.getElementById('new-password-input').style.display = 'none';
-            document.getElementById('auth-submit-btn').innerText = "SUBMIT";
-            document.getElementById('forgot-pass-text').style.display = 'block';
-            document.getElementById('auth-toggle-text').innerHTML = "Don't have an account? <span style='color:#00ff80; text-decoration:underline;' onclick='toggleAuthMode()'>Register here</span>";
-            document.getElementById('auth-error').style.display = 'none';
+            updateAuthUI();
         }
 
         function togglePasswordVisibility(inputId, eyeId) {
@@ -700,7 +721,7 @@
             let title = document.getElementById('auth-title');
             let toggleText = document.getElementById('auth-toggle-text');
             let nameInput = document.getElementById('auth-name');
-            let phoneInput = document.getElementById('auth-phone');
+            let phoneGroup = document.getElementById('phone-group');
             let passwordGroup = document.getElementById('password-group');
             let confirmPasswordGroup = document.getElementById('confirm-password-group');
             let otpInput = document.getElementById('otp-input');
@@ -709,29 +730,46 @@
             let submitBtn = document.getElementById('auth-submit-btn');
             let backBtn = document.getElementById('auth-back-btn');
 
+            // Default reset
             otpInput.style.display = 'none';
             newPassInput.style.display = 'none';
+            nameInput.style.display = 'none';
+            phoneGroup.style.display = 'none';
+            passwordGroup.style.display = 'block';
+            confirmPasswordGroup.style.display = 'none';
             forgotText.style.display = 'block';
             submitBtn.innerText = "SUBMIT";
-            
-            if (isRegisterMode) {
-                title.innerText = "REGISTER TO PLP";
-                nameInput.style.display = 'block';
-                phoneInput.style.display = 'block';
-                passwordGroup.style.display = 'block';
-                confirmPasswordGroup.style.display = 'block';
-                toggleText.innerHTML = 'Already have an account? <span style="color:#00ff80; text-decoration:underline;" onclick="toggleAuthMode()">Login here</span>';
-                forgotText.style.display = 'none';
-                submitBtn.innerText = "GET OTP";
+            backBtn.style.display = 'none';
+
+            if (isForgotPasswordMode) {
+                title.innerText = "FORGOT PASSWORD";
                 backBtn.style.display = 'block';
+                passwordGroup.style.display = 'none';
+                forgotText.style.display = 'none';
+                submitBtn.innerText = forgotStep === 1 ? "SEND OTP" : "VERIFY & RESET";
+                if(forgotStep === 2) {
+                    otpInput.style.display = 'block';
+                    newPassInput.style.display = 'block';
+                }
+                toggleText.innerHTML = 'Remembered your password? <span style="color:#00ff80; text-decoration:underline;" onclick="cancelForgotPassword()">Login here</span>';
+            } else if (isRegisterMode) {
+                title.innerText = "REGISTER TO PLP";
+                backBtn.style.display = 'block';
+                forgotText.style.display = 'none';
+                if (registerStep === 1) {
+                    nameInput.style.display = 'block';
+                    phoneGroup.style.display = 'flex';
+                    confirmPasswordGroup.style.display = 'block';
+                    submitBtn.innerText = "GET OTP";
+                } else {
+                    otpInput.style.display = 'block';
+                    passwordGroup.style.display = 'none';
+                    submitBtn.innerText = "VERIFY & REGISTER";
+                }
+                toggleText.innerHTML = 'Already have an account? <span style="color:#00ff80; text-decoration:underline;" onclick="toggleAuthMode()">Login here</span>';
             } else {
                 title.innerText = "LOGIN TO PLP";
-                nameInput.style.display = 'none';
-                phoneInput.style.display = 'none';
-                passwordGroup.style.display = 'block';
-                confirmPasswordGroup.style.display = 'none';
                 toggleText.innerHTML = "Don't have an account? <span style='color:#00ff80; text-decoration:underline;' onclick='toggleAuthMode()'>Register here</span>";
-                backBtn.style.display = 'none';
             }
             document.getElementById('auth-error').style.display = 'none';
         }
@@ -740,7 +778,7 @@
             if (isForgotPasswordMode) {
                 if (forgotStep === 2) {
                     forgotStep = 1;
-                    showForgotPassword();
+                    updateAuthUI();
                 } else {
                     cancelForgotPassword();
                 }
@@ -776,9 +814,7 @@
                         if(data.status === 'success') {
                             alert("6-digit OTP sent successfully to your email!");
                             forgotStep = 2;
-                            document.getElementById('otp-input').style.display = 'block';
-                            document.getElementById('new-password-input').style.display = 'block';
-                            document.getElementById('auth-submit-btn').innerText = "VERIFY & RESET";
+                            updateAuthUI();
                             errBox.style.display = 'none';
                         } else {
                             errBox.innerText = data.message || "Email not found!";
@@ -826,28 +862,29 @@
                         errBox.style.display = 'block';
                         return;
                     }
+                    if (phone.length < 10) {
+                        errBox.innerText = "Please enter a valid 10-digit mobile number!";
+                        errBox.style.display = 'block';
+                        return;
+                    }
                     if (password !== confirmPassword) {
                         errBox.innerText = "Passwords do not match!";
                         errBox.style.display = 'block';
                         return;
                     }
 
+                    let fullPhone = "+91" + phone;
                     fetch('/api/register-send-otp', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email: email, name: name, phone: phone })
+                        body: JSON.stringify({ email: email, name: name, phone: fullPhone, password: password })
                     })
                     .then(res => res.json())
                     .then(data => {
                         if(data.status === 'success') {
                             alert("OTP sent to your email for verification!");
                             registerStep = 2;
-                            document.getElementById('otp-input').style.display = 'block';
-                            document.getElementById('auth-name').style.display = 'none';
-                            document.getElementById('auth-phone').style.display = 'none';
-                            document.getElementById('password-group').style.display = 'none';
-                            document.getElementById('confirm-password-group').style.display = 'none';
-                            document.getElementById('auth-submit-btn').innerText = "VERIFY & REGISTER";
+                            updateAuthUI();
                             errBox.style.display = 'none';
                         } else {
                             errBox.innerText = data.message || "Failed to send OTP!";
