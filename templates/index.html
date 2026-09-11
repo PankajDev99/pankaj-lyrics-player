@@ -713,19 +713,19 @@
         }
 
         function goBackAuthStep() {
-            if (isRegisterMode && registerStep === 2) {
-                registerStep = 1;
-                document.getElementById('auth-name').style.display = 'block';
-                document.getElementById('phone-group').style.display = 'block';
-                document.getElementById('password-group').style.display = 'block';
-                document.getElementById('confirm-password-group').style.display = 'block';
-                document.getElementById('otp-input').style.display = 'none';
-                document.getElementById('auth-submit-btn').innerText = "GET OTP";
-                document.getElementById('auth-back-btn').style.display = 'none';
-            } else if (isForgotPasswordMode) {
-                cancelForgotPassword();
-            }
-        }
+    if (isRegisterMode && registerStep === 2) {
+        registerStep = 1;
+        document.getElementById('auth-name').style.display = 'block';
+        document.getElementById('phone-group').style.display = 'block';
+        document.getElementById('password-group').style.display = 'block';
+        document.getElementById('confirm-password-group').style.display = 'block';
+        document.getElementById('otp-input').style.display = 'none';
+        document.getElementById('auth-submit-btn').innerText = "GET OTP";
+        document.getElementById('auth-back-btn').style.display = 'none';
+    } else if (isForgotPasswordMode) {
+        cancelForgotPassword();
+    }
+}
 
         function submitAuth() {
             const email = document.getElementById('auth-email').value.trim();
