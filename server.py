@@ -6,6 +6,9 @@ app.secret_key = "pankaj_secret_key_here"
 
 VIP_USERS = ["pankajkhatik0999@gmail.com", "vipuser@gmail.com"]
 
+# Simulated database/storage for users if needed, or simple session check
+REGISTERED_USERS = {"pankajkhatik0999@gmail.com": "owner"}
+
 SONGS_DATABASE = {
     "dhundle manzar": {
         "display_name": "Dhundle Manzar",
@@ -76,63 +79,63 @@ SONGS_DATABASE = {
         "artist": "The Singh",
         "audio_url": "/static/Tha Last Talk.mp3",
         "video_url": "/static/The_Last_Talk_Video.mp4",
-        "official_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",  # Yahan apna official link daal sakte hain
+        "official_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
         "is_premium": False,
         "lyrics_timed": [
-        {"time": 0.0, "text": "......."},
-        {"time": 21.5, "text": "Sun maa..."},
-        {"time": 24.2, "text": "Dekh phasta ja raha hoon"},
-        {"time": 26.5, "text": "Duniya ke daldal mein"},
-        {"time": 28.5, "text": "Dhasta ja raha hoon"},
-        {"time": 30.2, "text": "Daba ke rakhun gham..."},
-        {"time": 32.2, "text": "Bata kitne dil mein hai"},
-        {"time": 34.2, "text": "Aankhon mein aansu"},
-        {"time": 35.8, "text": "Aur hasta ja raha hoon"},
-        {"time": 37.2, "text": "Main chahta to tha tujhe"},
-        {"time": 39.0, "text": "Sab kuch bata dun"},
-        {"time": 40.8, "text": "Laga ke gale"},
-        {"time": 42.5, "text": "Sare gham main bhula dun"},
-        {"time": 44.5, "text": "Teri aankhon mein aanshu bhate nahi"},
-        {"time": 47.5, "text": "Mujhe behtar laga ke"},
-        {"time": 49.2, "text": "Main khud ko sula dun"},
-        {"time": 51.5, "text": "Tu reh lena mere jaane ke baad"},
-        {"time": 54.5, "text": "Zyada na rona mar jaane ke baad"},
-        {"time": 57.5, "text": "Has-has ke karna vida mujhko duniya se"},
-        {"time": 61.2, "text": "Photo tu lena janaze ke sath"},
-        {"time": 64.5, "text": "Dikhane the sath ajube jahan ke"},
-        {"time": 67.2, "text": "Dikha bhi na paya, bata bhi na paya"},
-        {"time": 70.8, "text": "Batani thi tujhko maa baatein bahut si"},
-        {"time": 74.5, "text": "Main kismat ka mara bata bhi na paya"},
-        {"time": 78.5, "text": "Saja bhi na paya ma duniya teri"},
-        {"time": 82.2, "text": "Teri raahon se kante hata bhi na paya"},
-        {"time": 86.0, "text": "Likha tha ek khat bas tere liye"},
-        {"time": 89.5, "text": "Tujhe paas bitha ke suna bhi na paya"},
-        {"time": 93.0, "text": "......."},
-        {"time": 104.0, "text": "Likha tha ek khat bas tere liye"},
-        {"time": 107.5, "text": "Tujhe paas bitha ke suna bhi na paya"},
-        {"time": 111.0, "text": "Maa main aaunga lekar janam phir dubara"},
-        {"time": 115.5, "text": "Main kabil banunga sab hasil karunga"},
-        {"time": 119.5, "text": "Tu banna meri maa phir ek janam aur"},
-        {"time": 123.5, "text": "Main kabil hoon kitna main sabit karunga"},
-        {"time": 127.5, "text": "Tere hisse ke gham main lekar chala"},
-        {"time": 131.0, "text": "Mere jaane ke baad tu rona na na"},
-        {"time": 134.5, "text": "Mujhe pata hai tu kitna marti hai mujhpe"},
-        {"time": 138.5, "text": "Paas photo ko rakh ke tu sona na na"},
-        {"time": 142.5, "text": "Tune jhopdi ko ghar banaya hai maa"},
-        {"time": 146.5, "text": "Tapti dhoop mein khud ko tapaya hai maa"},
-        {"time": 150.5, "text": "Log izzat ya paisa ek hi kamate hain"},
-        {"time": 154.5, "text": "Tune to dono kamaya hai maa"},
-        {"time": 158.0, "text": "Maa poochti hai to main batata nahi"},
-        {"time": 161.5, "text": "Koi bole bhi aur jawab na de"},
-        {"time": 165.2, "text": "Uski aankhon mein dekh ke lagta hai mujhko"},
-        {"time": 168.8, "text": "Khuda mujh si kisi ko aulaad na de"},
-        {"time": 173.0, "text": "Main jitna lad sakta tha khud se lada"},
-        {"time": 177.5, "text": "Maa main khud se to jeet gaya magar zindagi se haar gaya"},
-        {"time": 184.0, "text": "Mujhe khali jeb aur gareebi ne nahi mara"},
-        {"time": 189.5, "text": "Maa tera chhup-chhup ke rona maar gaya"},
-        {"time": 195.0, "text": "Maa tera chhup-chhup ke rona maar gaya"},
-        {"time": 201.0, "text": "....end😭..."}
-    ]
+            {"time": 0.0, "text": "......."},
+            {"time": 25.0, "text": "Sun maa..."},
+            {"time": 27.2, "text": "Dekh phasta ja raha hoon"},
+            {"time": 29.5, "text": "Duniya ke daldal mein"},
+            {"time": 31.5, "text": "Dhasta ja raha hoon"},
+            {"time": 33.2, "text": "Daba ke rakhun gham..."},
+            {"time": 35.2, "text": "Bata kitne dil mein hai"},
+            {"time": 37.2, "text": "Aankhon mein aansu"},
+            {"time": 38.8, "text": "Aur hasta ja raha hoon"},
+            {"time": 40.2, "text": "Main chahta to tha tujhe"},
+            {"time": 42.0, "text": "Sab kuch bata dun"},
+            {"time": 43.8, "text": "Laga ke gale"},
+            {"time": 45.5, "text": "Sare gham main bhula dun"},
+            {"time": 47.5, "text": "Teri aankhon mein aanshu bhate nahi"},
+            {"time": 50.5, "text": "Mujhe behtar laga ke"},
+            {"time": 52.2, "text": "Main khud ko sula dun"},
+            {"time": 54.5, "text": "Tu reh lena mere jaane ke baad"},
+            {"time": 57.5, "text": "Zyada na rona mar jaane ke baad"},
+            {"time": 60.5, "text": "Has-has ke karna vida mujhko duniya se"},
+            {"time": 64.2, "text": "Photo tu lena janaze ke sath"},
+            {"time": 67.5, "text": "Dikhane the sath ajube jahan ke"},
+            {"time": 70.2, "text": "Dikha bhi na paya, bata bhi na paya"},
+            {"time": 73.8, "text": "Batani thi tujhko maa baatein bahut si"},
+            {"time": 77.5, "text": "Main kismat ka mara bata bhi na paya"},
+            {"time": 81.5, "text": "Saja bhi na paya ma duniya teri"},
+            {"time": 85.2, "text": "Teri raahon se kante hata bhi na paya"},
+            {"time": 89.0, "text": "Likha tha ek khat bas tere liye"},
+            {"time": 92.5, "text": "Tujhe paas bitha ke suna bhi na paya"},
+            {"time": 96.0, "text": "......."},
+            {"time": 107.0, "text": "Likha tha ek khat bas tere liye"},
+            {"time": 110.5, "text": "Tujhe paas bitha ke suna bhi na paya"},
+            {"time": 114.0, "text": "Maa main aaunga lekar janam phir dubara"},
+            {"time": 118.5, "text": "Main kabil banunga sab hasil karunga"},
+            {"time": 122.5, "text": "Tu banna meri maa phir ek janam aur"},
+            {"time": 126.5, "text": "Main kabil hoon kitna main sabit karunga"},
+            {"time": 130.5, "text": "Tere hisse ke gham main lekar chala"},
+            {"time": 134.0, "text": "Mere jaane ke baad tu rona na na"},
+            {"time": 137.5, "text": "Mujhe pata hai tu kitna marti hai mujhpe"},
+            {"time": 141.5, "text": "Paas photo ko rakh ke tu sona na na"},
+            {"time": 145.5, "text": "Tune jhopdi ko ghar banaya hai maa"},
+            {"time": 149.5, "text": "Tapti dhoop mein khud ko tapaya hai maa"},
+            {"time": 153.5, "text": "Log izzat ya paisa ek hi kamate hain"},
+            {"time": 157.5, "text": "Tune to dono kamaya hai maa"},
+            {"time": 161.0, "text": "Maa poochti hai to main batata nahi"},
+            {"time": 164.5, "text": "Koi bole bhi aur jawab na de"},
+            {"time": 168.2, "text": "Uski aankhon mein dekh ke lagta hai mujhko"},
+            {"time": 171.8, "text": "Khuda mujh si kisi ko aulaad na de"},
+            {"time": 176.0, "text": "Main jitna lad sakta tha khud se lada"},
+            {"time": 180.5, "text": "Maa main khud se to jeet gaya magar zindagi se haar gaya"},
+            {"time": 187.0, "text": "Mujhe khali jeb aur gareebi ne nahi mara"},
+            {"time": 192.5, "text": "Maa tera chhup-chhup ke rona maar gaya"},
+            {"time": 198.0, "text": "Maa tera chhup-chhup ke rona maar gaya"},
+            {"time": 204.0, "text": "....end😭..."}
+        ]
     }
 }
 
@@ -163,9 +166,37 @@ def login():
         
     return jsonify({"status": "success", "email": email, "role": session['role']})
 
+@app.route('/api/register', methods=['POST'])
+def register():
+    data = request.json
+    email = data.get('email', '').strip().lower()
+    if not email:
+        return jsonify({"status": "error", "message": "Email is required"}), 400
+    
+    session['user'] = email
+    if email == "pankajkhatik0999@gmail.com":
+        session['role'] = 'owner'
+    elif email in VIP_USERS:
+        session['role'] = 'vip'
+    else:
+        session['role'] = 'normal'
+        
+    return jsonify({"status": "success", "email": email, "role": session['role']})
+
 @app.route('/api/logout', methods=['POST'])
 def logout():
     session.clear()
+    return jsonify({"status": "success"})
+
+@app.route('/api/delete-account', methods=['POST'])
+def delete_account():
+    session.clear()
+    return jsonify({"status": "success"})
+
+@app.route('/api/broadcast', methods=['POST'])
+def broadcast():
+    if session.get('role') != 'owner':
+        return jsonify({"status": "error", "message": "Unauthorized"}), 403
     return jsonify({"status": "success"})
 
 @app.route('/sw.js')

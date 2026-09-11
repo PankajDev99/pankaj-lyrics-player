@@ -347,13 +347,11 @@
             </div>
             
             <div class="user-section">
-                <!-- Notification Bell with Red Dot -->
                 <div class="notification-bell" onclick="openNotifications()" title="Updates & Notifications">
                     🔔
                     <div id="notif-dot" class="notification-dot"></div>
                 </div>
 
-                <!-- APK Button -->
                 <a id="apk-download-btn" href="/static/PankajLyricsPlayer.apk" download class="neon-btn apk-btn" style="padding:6px 12px; font-size:10px;">
                     📲 APK
                 </a>
@@ -384,15 +382,14 @@
     </div>
 
     <!-- Login / Register Modal -->
-    <div id="auth-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:3000; justify-content:center; align-items:center;">
+    <div id="auth-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:5000; justify-content:center; align-items:center;">
         <div class="glass-card" style="width:90%; max-width:400px; text-align:center;">
             <h3 id="auth-title" style="color:#00ff80; font-family:'Orbitron'; margin-bottom:15px;">LOGIN TO PLP</h3>
             <input type="email" id="auth-email" placeholder="Enter your email..." style="margin-bottom:12px;">
-            <input type="password" id="auth-password" placeholder="Enter password (Owner/User)..." style="margin-bottom:15px; display:none;">
-            <div id="auth-error" style="color:#ff4d4d; font-size:12px; margin-bottom:10px; display:none;">User not found! Please register first.</div>
+            <input type="password" id="auth-password" placeholder="Enter password (Optional)..." style="margin-bottom:15px; display:none;">
+            <div id="auth-error" style="color:#ff4d4d; font-size:12px; margin-bottom:10px; display:none;"></div>
             <div style="display:flex; gap:10px; justify-content:center; margin-bottom:12px;">
                 <button class="neon-btn" onclick="submitAuth()">SUBMIT</button>
-                <button class="neon-btn" onclick="closeAuthModal()" style="background:rgba(255,255,255,0.1); color:#fff;">CANCEL</button>
             </div>
             <p id="auth-toggle-text" style="font-size:12px; color:#aaa; cursor:pointer;" onclick="toggleAuthMode()">Don't have an account? <span style="color:#00ff80; text-decoration:underline;">Register here</span></p>
         </div>
@@ -415,7 +412,6 @@
             <div id="notif-content" style="font-size:13px; color:#ddd; margin-bottom:20px; max-height:250px; overflow-y:auto; text-align:left; padding:10px; background:rgba(0,0,0,0.4); border-radius:10px;">
                 <p>✨ Welcome to Pankaj Lyrics Player! Enjoy the latest synced tracks and high-quality player experience.</p>
             </div>
-            <!-- Owner Broadcast Control (Visible only to owner) -->
             {% if role == 'owner' %}
             <div style="border-top:1px solid rgba(0,255,128,0.2); padding-top:15px; margin-bottom:15px;">
                 <input type="text" id="broadcast-text" placeholder="Type notification text..." style="margin-bottom:8px;">
@@ -480,11 +476,7 @@
         let currentSongKey = '';
         let userRole = "{{ role }}";
         let isRegisterMode = false;
-        
-        let audioCtx, analyser, dataArray, source, canvasCtx, visualizerId;
-        let isSourceConnected = false;
 
-        // Hide APK download button if opened inside installed PWA/App
         if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
             let apkBtn = document.getElementById('apk-download-btn');
             if(apkBtn) apkBtn.style.display = 'none';
@@ -492,7 +484,7 @@
 
         window.onload = function() {
             let loggedInUser = "{{ user }}";
-            if (!loggedInUser) {
+            if (!loggedInUser || loggedInUser === "None" || loggedInUser === "") {
                 openAuthModal('login');
             }
             loadSongs();
@@ -532,15 +524,6 @@
             updateAuthUI();
         }
 
-        function closeAuthModal() {
-            let loggedInUser = "{{ user }}";
-            if (!loggedInUser) {
-                alert("Please login first to use the player!");
-                return;
-            }
-            document.getElementById('auth-modal').style.display = 'none';
-        }
-
         function toggleAuthMode() {
             isRegisterMode = !isRegisterMode;
             updateAuthUI();
@@ -568,8 +551,8 @@
             const password = document.getElementById('auth-password').value.trim();
             const errBox = document.getElementById('auth-error');
 
-            if(!email) {
-                errBox.innerText = "Please enter an email!";
+            if(!email || !email.includes('@')) {
+                errBox.innerText = "Please enter a valid email address!";
                 errBox.style.display = 'block';
                 return;
             }
@@ -586,7 +569,7 @@
                 if(data.status === 'success') {
                     location.reload();
                 } else {
-                    errBox.innerText = data.message || "User not found or incorrect password!";
+                    errBox.innerText = data.message || "Authentication failed!";
                     errBox.style.display = 'block';
                 }
             });
@@ -613,10 +596,7 @@
             document.getElementById('settings-modal').style.display = 'none';
         }
 
-        // Notification & Red Dot Logic
         function checkUnreadNotifications() {
-            let lastReadTime = localStorage.getItem('plp_last_read') || 0;
-            // Simulated check: if there is any update or if unread flag exists
             let hasUnread = localStorage.getItem('plp_has_unread') === 'true';
             if (hasUnread) {
                 document.getElementById('notif-dot').style.display = 'block';
@@ -627,7 +607,6 @@
 
         function openNotifications() {
             document.getElementById('notification-modal').style.display = 'flex';
-            // Mark as read (Remove Red Dot)
             localStorage.setItem('plp_has_unread', 'false');
             document.getElementById('notif-dot').style.display = 'none';
         }
@@ -647,7 +626,7 @@
                 body: JSON.stringify({ text: text, image: img })
             }).then(res => res.json()).then(data => {
                 alert("Notification sent successfully!");
-                localStorage.setItem('plp_has_unread', 'true'); // Trigger red dot for users
+                localStorage.setItem('plp_has_unread', 'true');
                 closeNotifications();
             });
         }
@@ -704,7 +683,6 @@
         function syncLyrics(currentTime) {
             const lines = document.querySelectorAll('.lyric-line');
             let activeIndex = -1;
-            // Slightly adjusted check to keep lyrics perfectly matched
             currentLyrics.forEach((line, index) => {
                 if (Number(line.time) <= (currentTime + 0.5)) activeIndex = index;
             });
