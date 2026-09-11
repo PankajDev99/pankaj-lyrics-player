@@ -385,12 +385,28 @@
     <div id="auth-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:5000; justify-content:center; align-items:center;">
         <div class="glass-card" style="width:90%; max-width:400px; text-align:center;">
             <h3 id="auth-title" style="color:#00ff80; font-family:'Orbitron'; margin-bottom:15px;">LOGIN TO PLP</h3>
+            
             <input type="email" id="auth-email" placeholder="Enter your email..." style="margin-bottom:12px;">
-            <input type="password" id="auth-password" placeholder="Enter password (Optional)..." style="margin-bottom:15px; display:none;">
-            <div id="auth-error" style="color:#ff4d4d; font-size:12px; margin-bottom:10px; display:none;"></div>
-            <div style="display:flex; gap:10px; justify-content:center; margin-bottom:12px;">
-                <button class="neon-btn" onclick="submitAuth()">SUBMIT</button>
+            
+            <!-- Password field with Eye Toggle -->
+            <div style="position:relative; margin-bottom:12px;">
+                <input type="password" id="auth-password" placeholder="Enter password..." style="padding-right: 40px;">
+                <span id="eye-btn" onclick="togglePasswordVisibility()" style="position:absolute; right:15px; top:12px; cursor:pointer; font-size:16px;">👁️‍🗨️</span>
             </div>
+
+            <!-- OTP & New Password fields (Initially Hidden) -->
+            <input type="text" id="otp-input" placeholder="Enter 6-digit OTP..." style="margin-bottom:12px; display:none;">
+            <input type="password" id="new-password-input" placeholder="Enter new password..." style="margin-bottom:12px; display:none;">
+
+            <div id="auth-error" style="color:#ff4d4d; font-size:12px; margin-bottom:10px; display:none;"></div>
+            
+            <div style="display:flex; gap:10px; justify-content:center; margin-bottom:12px;">
+                <button class="neon-btn" id="auth-submit-btn" onclick="submitAuth()">SUBMIT</button>
+            </div>
+
+            <!-- Forgot Password Link -->
+            <p id="forgot-pass-text" style="font-size:11px; color:#00ff80; cursor:pointer; margin-bottom:8px; text-decoration:underline;" onclick="showForgotPassword()">Forgot Password?</p>
+            
             <p id="auth-toggle-text" style="font-size:12px; color:#aaa; cursor:pointer;" onclick="toggleAuthMode()">Don't have an account? <span style="color:#00ff80; text-decoration:underline;">Register here</span></p>
         </div>
     </div>
@@ -476,6 +492,7 @@
         let currentSongKey = '';
         let userRole = "{{ role }}";
         let isRegisterMode = false;
+        let isForgotPasswordMode = false;
 
         if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
             let apkBtn = document.getElementById('apk-download-btn');
@@ -521,27 +538,74 @@
         function openAuthModal(type) {
             document.getElementById('auth-modal').style.display = 'flex';
             isRegisterMode = (type === 'register');
+            isForgotPasswordMode = false;
             updateAuthUI();
         }
 
         function toggleAuthMode() {
             isRegisterMode = !isRegisterMode;
+            isForgotPasswordMode = false;
             updateAuthUI();
+        }
+
+        function showForgotPassword() {
+            isForgotPasswordMode = true;
+            document.getElementById('auth-title').innerText = "RESET PASSWORD";
+            document.getElementById('auth-password').style.display = 'none';
+            document.getElementById('otp-input').style.display = 'block';
+            document.getElementById('new-password-input').style.display = 'block';
+            document.getElementById('auth-submit-btn').innerText = "SEND OTP / VERIFY";
+            document.getElementById('forgot-pass-text').style.display = 'none';
+            document.getElementById('auth-toggle-text').innerHTML = 'Remembered your password? <span style="color:#00ff80; text-decoration:underline;" onclick="cancelForgotPassword()">Login here</span>';
+            document.getElementById('auth-error').style.display = 'none';
+        }
+
+        function cancelForgotPassword() {
+            isForgotPasswordMode = false;
+            document.getElementById('auth-title').innerText = "LOGIN TO PLP";
+            document.getElementById('auth-password').style.display = 'block';
+            document.getElementById('otp-input').style.display = 'none';
+            document.getElementById('new-password-input').style.display = 'none';
+            document.getElementById('auth-submit-btn').innerText = "SUBMIT";
+            document.getElementById('forgot-pass-text').style.display = 'block';
+            document.getElementById('auth-toggle-text').innerHTML = "Don't have an account? <span style='color:#00ff80; text-decoration:underline;' onclick='toggleAuthMode()'>Register here</span>";
+            document.getElementById('auth-error').style.display = 'none';
+        }
+
+        function togglePasswordVisibility() {
+            let passInput = document.getElementById('auth-password');
+            let eyeBtn = document.getElementById('eye-btn');
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                eyeBtn.innerText = '👁️';
+            } else {
+                passInput.type = 'password';
+                eyeBtn.innerText = '👁️‍🗨️';
+            }
         }
 
         function updateAuthUI() {
             let title = document.getElementById('auth-title');
             let toggleText = document.getElementById('auth-toggle-text');
             let passInput = document.getElementById('auth-password');
+            let otpInput = document.getElementById('otp-input');
+            let newPassInput = document.getElementById('new-password-input');
+            let forgotText = document.getElementById('forgot-pass-text');
+            let submitBtn = document.getElementById('auth-submit-btn');
+
+            otpInput.style.display = 'none';
+            newPassInput.style.display = 'none';
+            forgotText.style.display = 'block';
+            submitBtn.innerText = "SUBMIT";
+            passInput.style.display = 'block';
             
             if (isRegisterMode) {
                 title.innerText = "REGISTER TO PLP";
-                toggleText.innerHTML = 'Already have an account? <span style="color:#00ff80; text-decoration:underline;">Login here</span>';
-                passInput.style.display = 'block';
+                toggleText.innerHTML = 'Already have an account? <span style="color:#00ff80; text-decoration:underline;" onclick="toggleAuthMode()">Login here</span>';
+                forgotText.style.display = 'none';
             } else {
                 title.innerText = "LOGIN TO PLP";
-                toggleText.innerHTML = "Don't have an account? <span style='color:#00ff80; text-decoration:underline;'>Register here</span>";
-                passInput.style.display = 'block';
+                toggleText.innerHTML = "Don't have an account? <span style='color:#00ff80; text-decoration:underline;' onclick='toggleAuthMode()'>Register here</span>";
             }
             document.getElementById('auth-error').style.display = 'none';
         }
@@ -554,6 +618,11 @@
             if(!email || !email.includes('@')) {
                 errBox.innerText = "Please enter a valid email address!";
                 errBox.style.display = 'block';
+                return;
+            }
+
+            if (isForgotPasswordMode) {
+                alert("Password reset functionality initialized.");
                 return;
             }
 

@@ -1,13 +1,26 @@
 from flask import Flask, render_template, jsonify, send_from_directory, request, session
 import os
+import random
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 app = Flask(__name__)
 app.secret_key = "pankaj_secret_key_here"
 
+# Email Configuration
+SENDER_EMAIL = "maypaysecure@gmail.com"
+SENDER_PASSWORD = "lojq zhtq txqf mmrb"
+
 VIP_USERS = ["pankajkhatik0999@gmail.com", "vipuser@gmail.com"]
 
-# Simulated database/storage for users if needed, or simple session check
-REGISTERED_USERS = {"pankajkhatik0999@gmail.com": "owner"}
+# User database store karne ke liye (Email -> {"password": "...", "role": "..."})
+REGISTERED_USERS = {
+    "pankajkhatik0999@gmail.com": {"password": "adminpassword", "role": "owner"}
+}
+
+# Temporary OTP storage (Email -> OTP)
+OTP_STORAGE = {}
 
 SONGS_DATABASE = {
     "dhundle manzar": {
@@ -149,39 +162,98 @@ def home():
 def get_songs():
     return jsonify(SONGS_DATABASE)
 
-@app.route('/api/login', methods=['POST'])
-def login():
-    data = request.json
-    email = data.get('email', '').strip().lower()
-    if not email:
-        return jsonify({"status": "error", "message": "Email is required"}), 400
-    
-    session['user'] = email
-    if email == "pankajkhatik0999@gmail.com":
-        session['role'] = 'owner'
-    elif email in VIP_USERS:
-        session['role'] = 'vip'
-    else:
-        session['role'] = 'normal'
-        
-    return jsonify({"status": "success", "email": email, "role": session['role']})
-
 @app.route('/api/register', methods=['POST'])
 def register():
     data = request.json
     email = data.get('email', '').strip().lower()
-    if not email:
-        return jsonify({"status": "error", "message": "Email is required"}), 400
+    password = data.get('password', '').strip()
+    
+    if not email or not password:
+        return jsonify({"status": "error", "message": "Email and Password are required!"}), 400
+    
+    if email in REGISTERED_USERS:
+        return jsonify({"status": "error", "message": "Email already registered! Please login."}), 400
+    
+    # Role decide karna
+    if email == "pankajkhatik0999@gmail.com":
+        role = 'owner'
+    elif email in VIP_USERS:
+        role = 'vip'
+    else:
+        role = 'normal'
+        
+    REGISTERED_USERS[email] = {"password": password, "role": role}
     
     session['user'] = email
-    if email == "pankajkhatik0999@gmail.com":
-        session['role'] = 'owner'
-    elif email in VIP_USERS:
-        session['role'] = 'vip'
-    else:
-        session['role'] = 'normal'
+    session['role'] = role
+        
+    return jsonify({"status": "success", "email": email, "role": role})
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.json
+    email = data.get('email', '').strip().lower()
+    password = data.get('password', '').strip()
+    
+    if not email or not password:
+        return jsonify({"status": "error", "message": "Email and Password are required!"}), 400
+        
+    if email not in REGISTERED_USERS:
+        return jsonify({"status": "error", "message": "Email not found! Please register first."}), 400
+        
+    if REGISTERED_USERS[email]["password"] != password:
+        return jsonify({"status": "error", "message": "Wrong password! Please check."}), 400
+        
+    session['user'] = email
+    session['role'] = REGISTERED_USERS[email]["role"]
         
     return jsonify({"status": "success", "email": email, "role": session['role']})
+
+@app.route('/api/forgot-password', methods=['POST'])
+def forgot_password():
+    data = request.json
+    email = data.get('email', '').strip().lower()
+    
+    if email not in REGISTERED_USERS:
+        return jsonify({"status": "error", "message": "This email is not registered!"}), 400
+        
+    # 6 digit random OTP generate karna
+    otp = str(random.randint(100000, 999999))
+    OTP_STORAGE[email] = otp
+    
+    try:
+        msg = MIMEMultipart()
+        msg['From'] = SENDER_EMAIL
+        msg['To'] = email
+        msg['Subject'] = "PLP Player - Password Reset OTP"
+        
+        body = f"Your 6-digit OTP for password reset is: {otp}"
+        msg.attach(MIMEText(body, 'plain'))
+        
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(SENDER_EMAIL, SENDER_PASSWORD)
+        server.sendmail(SENDER_EMAIL, email, msg.as_string())
+        server.quit()
+    except Exception as e:
+        print(f"Email sending error: {e}")
+        return jsonify({"status": "error", "message": "Failed to send OTP email!"}), 500
+    
+    return jsonify({"status": "success", "message": "6-digit OTP sent to your email!"})
+
+@app.route('/api/verify-otp', methods=['POST'])
+def verify_otp():
+    data = request.json
+    email = data.get('email', '').strip().lower()
+    entered_otp = data.get('otp', '').strip()
+    new_password = data.get('new_password', '').strip()
+    
+    if email in OTP_STORAGE and OTP_STORAGE[email] == entered_otp:
+        REGISTERED_USERS[email]["password"] = new_password
+        del OTP_STORAGE[email] # OTP use hone ke baad delete
+        return jsonify({"status": "success", "message": "Password updated successfully!"})
+    
+    return jsonify({"status": "error", "message": "Wrong OTP entered!"}), 400
 
 @app.route('/api/logout', methods=['POST'])
 def logout():
@@ -190,6 +262,9 @@ def logout():
 
 @app.route('/api/delete-account', methods=['POST'])
 def delete_account():
+    user = session.get('user')
+    if user in REGISTERED_USERS:
+        del REGISTERED_USERS[user]
     session.clear()
     return jsonify({"status": "success"})
 
