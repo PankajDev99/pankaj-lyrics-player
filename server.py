@@ -6,7 +6,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import razorpay
 
-# Razorpay Client Initialization
+# Razorpay Client Initialization (Apni Live/Test Keys yahan dalein)
 razorpay_client = razorpay.Client(auth=("YOUR_RAZORPAY_KEY", "YOUR_RAZORPAY_SECRET"))
 
 app = Flask(__name__)
@@ -18,14 +18,13 @@ SENDER_PASSWORD = "lojq zhtq txqf mmrb"
 
 VIP_USERS = ["pankajkhatik0999@gmail.com", "vipuser@gmail.com"]
 
-# Registered Users Database (Email -> {"password": "...", "role": "...", "name": "...", "phone": "..."})
+# User database store karne ke liye (Email -> {"password": "...", "role": "..."})
 REGISTERED_USERS = {
-    "pankajkhatik0999@gmail.com": {"password": "Pankaj khatik0999", "role": "owner", "name": "Pankaj Khatik", "phone": "9999999999"}
+    "pankajkhatik0999@gmail.com": {"password": "Pankaj khatik0999", "role": "owner"}
 }
 
-# Temporary Storage for OTP and Registration Data
+# Temporary OTP storage (Email -> OTP)
 OTP_STORAGE = {}
-TEMP_REG_STORAGE = {}
 
 SONGS_DATABASE = {
     "dhundle manzar": {
@@ -74,7 +73,22 @@ SONGS_DATABASE = {
             {"time": 38.0, "text": "Dil jaan sab kuch deju tanne main.."},
             {"time": 41.0, "text": "Dil aale badala mein pyar bhara se.."},
             {"time": 43.0, "text": "Aaja pyar aali boonda ke mah...."},
-            {"time": 44.0, "text": "Bheju tanne main ...."}
+            {"time": 44.0, "text": "Bheju tanne main...."},
+            {"time": 46.0, "text": ".........."},
+            {"time": 57.0, "text": "Batue se muh jissi pote ki se bahu..."},
+            {"time": 61.0, "text": "Dekh dekh chaa chade dadi kare nyuh.."},
+            {"time": 64.0, "text": "Ladiye na kade meri baat maniye...."},
+            {"time": 66.0, "text": "Meri maa bhi tane rakhegi re betiya ki jyun.."},
+            {"time": 69.0, "text": "Nyun ki re nyun jamma laage tu pari..."},
+            {"time": 72.0, "text": "Sar te re pair jamaa rass ki bhari.."},
+            {"time": 75.0, "text": "Ndee ndee kundu bass naam ka hi ndee.."},
+            {"time": 77.0, "text": "Naa re byah ke tanne delhi te yo..."},
+            {"time": 78.0, "text": "Laijega surrey..."},
+            {"time": 80.5, "text": "Phoolan aale garden leju tanne main.."},
+            {"time": 83.0, "text": "Dil jaan sab kuch deju tanne main.."},
+            {"time": 86.0, "text": "Dil aale badala mein pyar bhara se..."},
+            {"time": 89.0, "text": "Aaja pyar aali boonda ke mah..."},
+            {"time": 90.0, "text": "Bheju tanne main ...."}
         ]
     },
     "The last talk": {
@@ -84,61 +98,61 @@ SONGS_DATABASE = {
         "video_url": "/static/The_Last_Talk_Video.mp4",
         "official_url": "https://youtu.be/Tvo8dTFopIA?si=VWNfWX8FA0CtkjZR",
         "is_premium": False,
-        "lyrics_timed": [
-            {"time": 0.0, "text": "......."},
-            {"time": 25.0, "text": "Sun maa..."},
-            {"time": 27.5, "text": "Dekh phasta ja raha hoon"},
-            {"time": 29.5, "text": "Duniya ke daldal mein"},
-            {"time": 31.0, "text": "Dhasta ja raha hoon"},
-            {"time": 32.5, "text": "Daba ke rakhun gham..."},
-            {"time": 34.5, "text": "Bata kitne dil mein hai"},
-            {"time": 37.0, "text": "Aankhon mein aansu"},
-            {"time": 38.8, "text": "Aur hasta ja raha hoon"},
-            {"time": 40.5, "text": "Main chahta to tha tujhe"},
-            {"time": 42.0, "text": "Sab kuch bata dun"},
-            {"time": 43.5, "text": "Laga ke gale"},
-            {"time": 45.2, "text": "Sare gham main bhula dun"},
-            {"time": 47.5, "text": "Teri aankhon mein aanshu bhate nahi"},
-            {"time": 50.0, "text": "Mujhe behtar laga ke"},
-            {"time": 52.0, "text": "Main khud ko sula dun"},
-            {"time": 53.8, "text": "Tu reh lena mere jaane ke baad"},
-            {"time": 56.0, "text": "Zyada na rona mar jaane ke baad"},
-            {"time": 59.2, "text": "Has-has ke karna vida mujhko duniya se"},
-            {"time": 62.8, "text": "Photo tu lena janaze ke sath"},
-            {"time": 66.0, "text": "Dikhane the sath ajube jahan ke"},
-            {"time": 68.5, "text": "Dikha bhi na paya, bata bhi na paya"},
-            {"time": 71.8, "text": "Batani thi tujhko maa baatein bahut si"},
-            {"time": 75.0, "text": "Main kismat ka mara bata bhi na paya"},
-            {"time": 78.2, "text": "Saja bhi na paya ma duniya teri"},
-            {"time": 80.8, "text": "Teri raahon se kante hata bhi na paya"},
-            {"time": 84.0, "text": "Likha tha ek khat bas tere liye"},
-            {"time": 86.5, "text": "Tujhe paas bitha ke suna bhi na paya"},
-            {"time": 90.5, "text": "......."},
-            {"time": 99.5, "text": "Likha tha ek khat bas tere liye"},
-            {"time": 102.2, "text": "Tujhe paas bitha ke suna bhi na paya"},
-            {"time": 105.0, "text": "Maa main aaunga lekar janam phir dubara"},
-            {"time": 109.0, "text": "Main kabil banunga sab hasil karunga"},
-            {"time": 112.0, "text": "Tu banna meri maa phir ek janam aur"},
-            {"time": 116.0, "text": "Main kabil hoon kitna main sabit karunga"},
-            {"time": 118.5, "text": "Tere hisse ke gham main lekar chala"},
-            {"time": 121.5, "text": "Mere jaane ke baad tu rona na na"},
-            {"time": 124.0, "text": "Mujhe pata hai tu kitna marti hai mujhpe"},
-            {"time": 128.0, "text": "Paas photo ko rakh ke tu sona na na"},
-            {"time": 131.0, "text": "Tune jhopdi ko ghar banaya hai maa"},
-            {"time": 134.0, "text": "Tapti dhoop mein khud ko tapaya hai maa"},
-            {"time": 136.8, "text": "Log izzat ya paisa ek hi kamate hain"},
-            {"time": 140.5, "text": "Tune to dono kamaya hai maa"},
-            {"time": 144.0, "text": "Maa poochti hai to main batata nahi"},
-            {"time": 146.5, "text": "Koi bole bhi aur jawab na de"},
-            {"time": 150.0, "text": "Uski aankhon mein dekh ke lagta hai mujhko"},
-            {"time": 153.2, "text": "Khuda mujh si kisi ko aulaad na de"},
-            {"time": 157.0, "text": "Main jitna lad sakta tha khud se lada"},
-            {"time": 162.0, "text": "Maa main khud se to jeet gaya magar zindagi se haar gaya"},
-            {"time": 167.0, "text": "Mujhe khali jeb aur gareebi ne nahi mara"},
-            {"time": 170.5, "text": "Maa tera chhup-chhup ke rona maar gaya"},
-            {"time": 175.0, "text": "Maa tera chhup-chhup ke rona maar gaya"},
-            {"time": 178.0, "text": "....end😭..."}
-        ]
+            "lyrics_timed": [
+    {"time": 0.0, "text": "......."},
+    {"time": 25.0, "text": "Sun maa..."},
+    {"time": 27.5, "text": "Dekh phasta ja raha hoon"},
+    {"time": 29.5, "text": "Duniya ke daldal mein"},
+    {"time": 31.0, "text": "Dhasta ja raha hoon"},
+    {"time": 32.5, "text": "Daba ke rakhun gham..."},
+    {"time": 34.5, "text": "Bata kitne dil mein hai"},
+    {"time": 37.0, "text": "Aankhon mein aansu"},
+    {"time": 38.8, "text": "Aur hasta ja raha hoon"},
+    {"time": 40.5, "text": "Main chahta to tha tujhe"},
+    {"time": 42.0, "text": "Sab kuch bata dun"},
+    {"time": 43.5, "text": "Laga ke gale"},
+    {"time": 45.2, "text": "Sare gham main bhula dun"},
+    {"time": 47.5, "text": "Teri aankhon mein aanshu bhate nahi"},
+    {"time": 50.0, "text": "Mujhe behtar laga ke"},
+    {"time": 52.0, "text": "Main khud ko sula dun"},
+    {"time": 53.8, "text": "Tu reh lena mere jaane ke baad"},
+    {"time": 56.0, "text": "Zyada na rona mar jaane ke baad"},
+    {"time": 59.2, "text": "Has-has ke karna vida mujhko duniya se"},
+    {"time": 62.8, "text": "Photo tu lena janaze ke sath"},
+    {"time": 66.0, "text": "Dikhane the sath ajube jahan ke"},
+    {"time": 68.5, "text": "Dikha bhi na paya, bata bhi na paya"},
+    {"time": 71.8, "text": "Batani thi tujhko maa baatein bahut si"},
+    {"time": 75.0, "text": "Main kismat ka mara bata bhi na paya"},
+    {"time": 78.2, "text": "Saja bhi na paya ma duniya teri"},
+    {"time": 80.8, "text": "Teri raahon se kante hata bhi na paya"},
+    {"time": 84.0, "text": "Likha tha ek khat bas tere liye"},
+    {"time": 86.5, "text": "Tujhe paas bitha ke suna bhi na paya"},
+    {"time": 90.5, "text": "......."},
+    {"time": 99.5, "text": "Likha tha ek khat bas tere liye"},
+    {"time": 102.2, "text": "Tujhe paas bitha ke suna bhi na paya"},
+    {"time": 105.0, "text": "Maa main aaunga lekar janam phir dubara"},
+    {"time": 109.0, "text": "Main kabil banunga sab hasil karunga"},
+    {"time": 112.0, "text": "Tu banna meri maa phir ek janam aur"},
+    {"time": 116.0, "text": "Main kabil hoon kitna main sabit karunga"},
+    {"time": 118.5, "text": "Tere hisse ke gham main lekar chala"},
+    {"time": 121.5, "text": "Mere jaane ke baad tu rona na na"},
+    {"time": 124.0, "text": "Mujhe pata hai tu kitna marti hai mujhpe"},
+    {"time": 128.0, "text": "Paas photo ko rakh ke tu sona na na"},
+    {"time": 131.0, "text": "Tune jhopdi ko ghar banaya hai maa"},
+    {"time": 134.0, "text": "Tapti dhoop mein khud ko tapaya hai maa"},
+    {"time": 136.8, "text": "Log izzat ya paisa ek hi kamate hain"},
+    {"time": 140.5, "text": "Tune to dono kamaya hai maa"},
+    {"time": 144.0, "text": "Maa poochti hai to main batata nahi"},
+    {"time": 146.5, "text": "Koi bole bhi aur jawab na de"},
+    {"time": 150.0, "text": "Uski aankhon mein dekh ke lagta hai mujhko"},
+    {"time": 153.2, "text": "Khuda mujh si kisi ko aulaad na de"},
+    {"time": 157.0, "text": "Main jitna lad sakta tha khud se lada"},
+    {"time": 162.0, "text": "Maa main khud se to jeet gaya magar zindagi se haar gaya"},
+    {"time": 167.0, "text": "Mujhe khali jeb aur gareebi ne nahi mara"},
+    {"time": 170.5, "text": "Maa tera chhup-chhup ke rona maar gaya"},
+    {"time": 175.0, "text": "Maa tera chhup-chhup ke rona maar gaya"},
+    {"time": 178.0, "text": "....end😭..."}
+]
     }
 }
 
@@ -152,70 +166,32 @@ def home():
 def get_songs():
     return jsonify(SONGS_DATABASE)
 
-@app.route('/api/register-send-otp', methods=['POST'])
-def register_send_otp():
+@app.route('/api/register', methods=['POST'])
+def register():
     data = request.json
     email = data.get('email', '').strip().lower()
-    name = data.get('name', '').strip()
-    phone = data.get('phone', '').strip()
+    password = data.get('password', '').strip()
     
-    if not email or not name or not phone:
-        return jsonify({"status": "error", "message": "All fields are required!"}), 400
+    if not email or not password:
+        return jsonify({"status": "error", "message": "Email and Password are required!"}), 400
     
     if email in REGISTERED_USERS:
         return jsonify({"status": "error", "message": "Email already registered! Please login."}), 400
     
-    otp = str(random.randint(100000, 999999))
-    OTP_STORAGE[email] = otp
-    TEMP_REG_STORAGE[email] = {"name": name, "phone": phone}
+    # Role decide karna
+    if email == "pankajkhatik0999@gmail.com":
+        role = 'owner'
+    elif email in VIP_USERS:
+        role = 'vip'
+    else:
+        role = 'normal'
+        
+    REGISTERED_USERS[email] = {"password": password, "role": role}
     
-    try:
-        msg = MIMEMultipart()
-        msg['From'] = SENDER_EMAIL
-        msg['To'] = email
-        msg['Subject'] = "PLP Player - Registration OTP"
+    session['user'] = email
+    session['role'] = role
         
-        body = f"Your 6-digit verification OTP for registration is: {otp}"
-        msg.attach(MIMEText(body, 'plain'))
-        
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        server.login(SENDER_EMAIL, SENDER_PASSWORD)
-        server.sendmail(SENDER_EMAIL, email, msg.as_string())
-        server.quit()
-    except Exception as e:
-        print(f"Email sending error: {e}")
-        return jsonify({"status": "error", "message": "Failed to send OTP email!"}), 500
-    
-    return jsonify({"status": "success", "message": "OTP sent to email!"})
-
-@app.route('/api/register-verify-otp', methods=['POST'])
-def register_verify_otp():
-    data = request.json
-    email = data.get('email', '').strip().lower()
-    otp = data.get('otp', '').strip()
-    
-    if email in OTP_STORAGE and OTP_STORAGE[email] == otp:
-        reg_info = TEMP_REG_STORAGE.get(email, {})
-        role = 'owner' if email == "pankajkhatik0999@gmail.com" else ('vip' if email in VIP_USERS else 'normal')
-        
-        REGISTERED_USERS[email] = {
-            "password": "password123", 
-            "role": role,
-            "name": reg_info.get("name", ""),
-            "phone": reg_info.get("phone", "")
-        }
-        
-        session['user'] = email
-        session['role'] = role
-        
-        del OTP_STORAGE[email]
-        if email in TEMP_REG_STORAGE:
-            del TEMP_REG_STORAGE[email]
-            
-        return jsonify({"status": "success", "message": "Registration verified!"})
-    
-    return jsonify({"status": "error", "message": "Invalid OTP!"}), 400
+    return jsonify({"status": "success", "email": email, "role": role})
 
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -245,6 +221,7 @@ def forgot_password():
     if email not in REGISTERED_USERS:
         return jsonify({"status": "error", "message": "This email is not registered!"}), 400
         
+    # 6 digit random OTP generate karna
     otp = str(random.randint(100000, 999999))
     OTP_STORAGE[email] = otp
     
@@ -277,7 +254,7 @@ def verify_otp():
     
     if email in OTP_STORAGE and OTP_STORAGE[email] == entered_otp:
         REGISTERED_USERS[email]["password"] = new_password
-        del OTP_STORAGE[email]
+        del OTP_STORAGE[email] # OTP use hone ke baad delete
         return jsonify({"status": "success", "message": "Password updated successfully!"})
     
     return jsonify({"status": "error", "message": "Wrong OTP entered!"}), 400
@@ -310,6 +287,7 @@ def create_order():
     if not session.get('user'):
         return jsonify({"status": "error", "message": "Please login first!"}), 401
     
+    # 1 month VIP subscription amount (Jaise ₹99 = 9900 paise)
     data = { "amount": 9900, "currency": "INR", "payment_capture": 1 }
     order = razorpay_client.order.create(data=data)
     return jsonify({"status": "success", "order_id": order['id'], "amount": data['amount']})
@@ -319,6 +297,7 @@ def verify_payment():
     data = request.json
     user_email = session.get('user')
     
+    # Payment verification successful hone ke baad user role ko VIP update karein
     if user_email and user_email in REGISTERED_USERS:
         REGISTERED_USERS[user_email]["role"] = "vip"
         session['role'] = "vip"
